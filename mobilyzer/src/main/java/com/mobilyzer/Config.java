@@ -23,7 +23,7 @@ public interface Config {
   public static final String PING6_EXECUTABLE = "ping6";
   
   public static final String SERVER_TASK_CLIENT_KEY = "LibraryServerTask";
-  public static final String CHECKIN_KEY = "MobilyzerCheckin";
+  public static final String CHECKIN_KEY = "MySpeedTest";
 
   public static final String TASK_STARTED = "TASK_STARTED";
   public static final String TASK_FINISHED = "TASK_FINISHED";

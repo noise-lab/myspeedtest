@@ -76,6 +76,7 @@ public class ServerMeasurementTask implements Callable<MeasurementResult[]> {
 					(int) realTask.getDescription().priority);
 			intent.putExtra(UpdateIntent.TASKID_PAYLOAD, realTask.getTaskId());
 			intent.putExtra(UpdateIntent.CLIENTKEY_PAYLOAD, realTask.getKey());
+			intent.putExtra(UpdateIntent.TASK_TYPE_PAYLOAD, realTask.getType());
 
 			if (results != null) {
 				// Only single task can be paused
@@ -149,10 +150,10 @@ public class ServerMeasurementTask implements Callable<MeasurementResult[]> {
 				if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
 					rManager.updateDataUsage(realTask.getDataConsumed());
 				}
-				if (realTask.getDescription().priority == MeasurementTask.GCM_PRIORITY) {
-					this.scheduler.checkin.uploadGCMMeasurementResult(
-							results[0], rManager);
-				}
+//				if (realTask.getDescription().priority == MeasurementTask.GCM_PRIORITY) {
+//					this.scheduler.checkin.uploadGCMMeasurementResult(
+//							results[0], rManager);
+//				}
 				broadcastMeasurementEnd(results, null);
 			} catch (MeasurementError e) {
 				String error = "Server measurement " + realTask.getDescriptor()

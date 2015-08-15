@@ -40,8 +40,12 @@ import org.json.JSONObject;
 import com.mobilyzer.Config;
 import com.mobilyzer.MeasurementTask;
 import com.mobilyzer.UpdateIntent;
+import com.mobilyzer.MeasurementResult.TaskProgress;
 import com.mobilyzer.gcm.GCMManager;
+import com.mobilyzer.measurements.PageLoadTimeTask;
+import com.mobilyzer.measurements.ParallelTask;
 import com.mobilyzer.measurements.RRCTask;
+import com.mobilyzer.measurements.SequentialTask;
 import com.mobilyzer.util.Logger;
 import com.mobilyzer.util.PhoneUtils;
 import com.mobilyzer.util.MeasurementJsonConvertor;
@@ -54,6 +58,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.os.Parcelable;
@@ -216,8 +221,8 @@ public class MeasurementScheduler extends Service {
 
 
         } else if (intent.getAction().equals(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION)) {
-          String taskid = intent.getStringExtra(UpdateIntent.TASKID_PAYLOAD);
           String taskKey = intent.getStringExtra(UpdateIntent.CLIENTKEY_PAYLOAD);
+          String taskid = intent.getStringExtra(UpdateIntent.TASKID_PAYLOAD);
           int priority =
               intent.getIntExtra(UpdateIntent.TASK_PRIORITY_PAYLOAD,
                   MeasurementTask.INVALID_PRIORITY);
@@ -227,7 +232,7 @@ public class MeasurementScheduler extends Service {
           if (intent.getStringExtra(UpdateIntent.TASK_STATUS_PAYLOAD).equals(Config.TASK_FINISHED)) {
             tasksStatus.put(taskid, TaskStatus.FINISHED);
             Parcelable[] results = intent.getParcelableArrayExtra(UpdateIntent.RESULT_PAYLOAD);
-            if (results != null) {
+            if (results != null && results.length!=0) {
               sendResultToClient(results, priority, taskKey, taskid);
 
               for (Object obj : results) {
@@ -238,6 +243,7 @@ public class MeasurementScheduler extends Service {
                    * accepted by GAE server
                    */
                   result.getMeasurementDesc().parameters = null;
+                  result.getDeviceProperty().registrationId = checkin.gcm_registraion_id;
                   String jsonResult = MeasurementJsonConvertor.encodeToJson(result).toString();
                   saveResultToFile(jsonResult);
                 } catch (JSONException e) {
@@ -426,7 +432,13 @@ public class MeasurementScheduler extends Service {
       // to be executed. Here we extract all those ready tasks from main queue
       while (task != null && task.timeFromExecution() <= 0) {
         mainQueue.poll();
-        
+
+        if(task.getDescription().getType().equals(PageLoadTimeTask.TYPE) && Build.VERSION.SDK_INT <=Build.VERSION_CODES.JELLY_BEAN_MR2){
+          Logger.i("MeasurementScheduler: handleMeasurement: PageLoadTime task is only availabe on API level 19 and higher");
+          task=mainQueue.peek();
+          continue;
+        }
+
         if(task.getDescription().getType().equals(RRCTask.TYPE) && phoneUtils.getNetwork().equals(PhoneUtils.NETWORK_WIFI)){
           long updatedStartTime = System.currentTimeMillis() + (long) (10 * 60 * 1000);
           task.getDescription().startTime.setTime(updatedStartTime);
@@ -1035,7 +1047,7 @@ public class MeasurementScheduler extends Service {
 
   private void getTasksFromServer() throws IOException {
     Logger.i("Downloading tasks from the server");
-    // checkin.getCookie();
+    checkin.getCookie();
     List<MeasurementTask> tasksFromServer = checkin.checkin(resourceCapManager, gcmManager);
     // The new task schedule overrides the old one
 

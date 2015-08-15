@@ -29,7 +29,6 @@ import com.google.myjson.JsonSerializer;
 import com.mobilyzer.MeasurementDesc;
 import com.mobilyzer.MeasurementTask;
 
-import android.content.Context;
 
 
 import org.json.JSONException;
