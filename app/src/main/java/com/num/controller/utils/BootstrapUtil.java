@@ -43,7 +43,7 @@ public class BootstrapUtil {
         MonthlyResetAlarmReceiver monthlyAlarm = new MonthlyResetAlarmReceiver();
         MeasurementAlarmReceiver alarm = new MeasurementAlarmReceiver();
         monthlyAlarm.setAlarm(context);
-        alarm.setAlarm(context);
+//        alarm.setAlarm(context);// TODO Ashkan: disabling periodic measurement execution in background
 
     }
 }
