@@ -78,11 +78,11 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        aboutUsButton = (LinearLayout) findViewById(R.id.main_button_about_us);
+        aboutUsButton = (LinearLayout) findViewById(R.id.main_button_surveys);
         aboutUsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(activity, AboutUsActivity.class);
+                Intent i = new Intent(activity, SurveyActivity.class);
                 startActivity(i);
             }
         });
