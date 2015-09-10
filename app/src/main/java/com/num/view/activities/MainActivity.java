@@ -12,6 +12,9 @@ import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MenuInflater;
 import android.widget.LinearLayout;
 
 import com.num.Constants;
@@ -94,6 +97,31 @@ public class MainActivity extends ActionBarActivity {
                         public void onClick(DialogInterface dialog, int which) {
                         }
                     }).setIcon(android.R.drawable.ic_dialog_alert).show();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_info:
+                Intent aboutUs = new Intent(activity, AboutUsActivity.class);
+                startActivity(aboutUs);
+                return true;
+            case R.id.action_settings:
+                Intent settings = new Intent(activity, SettingsActivity.class);
+                startActivity(settings);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
