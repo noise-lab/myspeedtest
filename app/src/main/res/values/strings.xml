@@ -22,6 +22,8 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="survey_title">Available Surveys:</string>
+    <string name="title_activity_survey_taking">SurveyTaking</string>
+    <string name="title_activity_display_survey">DisplaySurvey</string>
 
 
 </resources>

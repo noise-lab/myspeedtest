@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import com.num.R;
 import com.num.model.Survey;
@@ -42,4 +43,5 @@ public class SurveyListAdapter extends ArrayAdapter<Survey> {
         desc.setText(survey.desc);
         return rowView;
     }
+
 }

@@ -10,11 +10,11 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
+        android:name="com.android.python27.ScriptApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_my_speed_test"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-        android:name="com.android.python27.ScriptApplication">
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
         <activity
             android:name=".view.activities.TermsAndConditionsActivity"
             android:label="@string/title_activity_terms_and_conditions"
@@ -78,7 +78,7 @@
             android:label="@string/title_activity_censorship" >
         </activity>
 
-        <service 	android:name="com.android.python27.ScriptService">
+        <service android:name="com.android.python27.ScriptService" >
             <intent-filter>
                 <action android:name="com.android.python27.ScriptService" />
             </intent-filter>
@@ -88,6 +88,7 @@
             android:name=".controller.services.SignalService"
             android:enabled="true" >
         </service>
+
         <receiver android:name=".controller.receivers.BootUpReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -99,15 +100,32 @@
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
                 <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".controller.receivers.MeasurementAlarmReceiver" />
-        <receiver
-            android:name=".controller.receivers.MonthlyResetAlarmReceiver" />
+        <receiver android:name=".controller.receivers.MeasurementAlarmReceiver" />
+        <receiver android:name=".controller.receivers.MonthlyResetAlarmReceiver" />
+
+        <activity
+            android:name=".view.activities.SurveyActivity"
+            android:label="@string/title_activity_survey"
+            android:parentActivityName=".view.activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.num.view.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".view.activities.DisplaySurvey"
+            android:label="@string/title_activity_display_survey"
+            android:parentActivityName=".view.activities.SurveyActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.num.view.activities.SurveyActivity" />
+        </activity>
     </application>
+
 </manifest>
