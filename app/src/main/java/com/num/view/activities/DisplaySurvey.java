@@ -20,6 +20,7 @@ public class DisplaySurvey extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_display_survey);
         Intent intent = getIntent();
         String site = intent.getStringExtra(SurveyActivity.SURVEY_LINK);

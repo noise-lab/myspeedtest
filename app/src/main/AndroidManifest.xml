@@ -112,7 +112,7 @@
 
         <activity
             android:name=".view.activities.SurveyActivity"
-            android:label="@string/title_activity_survey"
+            android:label="Available Surveys"
             android:parentActivityName=".view.activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -120,7 +120,7 @@
         </activity>
         <activity
             android:name=".view.activities.DisplaySurvey"
-            android:label="@string/title_activity_display_survey"
+            android:label="Survey"
             android:parentActivityName=".view.activities.SurveyActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
