@@ -2,6 +2,7 @@ package com.num.controller.utils;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 import com.num.Constants;
 import com.num.model.Address;
@@ -113,4 +114,48 @@ public class ServerUtil {
             return pingTargets;
         }
     }
+
+    public static List<Pair<String, String>> getDnsTargets() {
+        List<Pair<String, String>> dnsTargets = new ArrayList<>();
+        ServerDnsTask task = new ServerDnsTask();
+        task.execute();
+        try {
+            return task.get();
+        } catch (Exception e) {
+            System.err.println("getDnsTargets");
+            e.printStackTrace();
+        }
+        return dnsTargets;
+    }
+
+    private static class ServerDnsTask extends AsyncTask<Void,Void,List<Pair<String, String>>> {
+        @Override
+        protected List<Pair<String, String>> doInBackground(Void... params) {
+            List<Pair<String, String>> dnsTargets = new ArrayList<>();
+            try {
+                String url = Constants.API_SERVER_ADDRESS + "dnsvalues";
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpGet getRequest = new HttpGet(url);
+                getRequest.setHeader("Accept", "application/json");
+                getRequest.setHeader("Content-type", "application/json");
+                HttpResponse response = null;
+                response = httpClient.execute(getRequest);
+                String r = EntityUtils.toString(response.getEntity());
+                JSONObject jsonResponse = new JSONObject(r);
+                JSONArray servers = jsonResponse.getJSONObject("values").getJSONArray("dns_targets");
+
+                for(int i=0; i<servers.length(); i++) {
+                    JSONObject obj = servers.getJSONObject(i);
+                    String target = obj.getString("target");
+                    String server = obj.getString("server");
+                    dnsTargets.add(new Pair<String, String>(target, server));
+                }
+            } catch (Exception e) {
+                Log.d("ServerDnsTask",  "Exception doInBackground");
+                e.printStackTrace();
+            }
+            return dnsTargets;
+        }
+    }
+
 }

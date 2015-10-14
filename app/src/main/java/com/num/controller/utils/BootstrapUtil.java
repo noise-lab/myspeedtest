@@ -31,6 +31,7 @@ public class BootstrapUtil {
         MeasurementAlarmReceiver alarm = new MeasurementAlarmReceiver();
         monthlyAlarm.setAlarm(context);
         alarm.setAlarm(context);
+        alarm.setAlarmDaily(context);
 
     }
 }

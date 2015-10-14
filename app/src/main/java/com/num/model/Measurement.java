@@ -30,6 +30,7 @@ public class Measurement implements BaseModel {
     private String localTime;
     private List<Ping> pings;
     private List<Traceroute> traceroutes;
+    private List<Dns> dnses;
     private Throughput throughput;
     private State state;
     private boolean isManual;
@@ -76,6 +77,10 @@ public class Measurement implements BaseModel {
         this.pings = pings;
     }
 
+    public void setDnses(List<Dns> dnses) {
+        this.dnses = dnses;
+    }
+
     public void setThroughput(Throughput throughput) {
         this.throughput = throughput;
     }
@@ -104,6 +109,15 @@ public class Measurement implements BaseModel {
                 }
                 json.putOpt("traceroutes", array);
             }
+
+            if(dnses != null) {
+                array = new JSONArray();
+                for(Dns t : dnses) {
+                    array.put(t.toJSON());
+                }
+                json.putOpt("dnses", array);
+            }
+
 
             if(device != null) {
                 json.putOpt("device", device.toJSON());
