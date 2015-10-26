@@ -57,15 +57,15 @@ public class DeviceProperty implements Parcelable {
   public ArrayList<String> hostApps;
   // the app which requests this measurement
   public String requestApp;
-
+  
   public String registrationId;
 
-  public DeviceProperty(String deviceId, String appVersion, long timeStamp,
-                        String osVersion, String ipConnectivity, String dnResolvability,
-                        double longtitude, double latitude, String locationType,
-                        String networkType, String carrier, String countryCode, int batteryLevel, boolean isCharging,
-                        String cellInfo, String cellRssi, int rssi, String ssid, String bssid, String wifiIpAddress,
-                        String mobilyzerVersion, HashSet<String> hostApps, String requestApp) {
+  public DeviceProperty(String deviceId, String appVersion, long timeStamp, 
+      String osVersion, String ipConnectivity, String dnResolvability, 
+      double longtitude, double latitude, String locationType, 
+      String networkType, String carrier, String countryCode, int batteryLevel, boolean isCharging,
+      String cellInfo, String cellRssi, int rssi, String ssid, String bssid, String wifiIpAddress, 
+      String mobilyzerVersion, HashSet<String> hostApps, String requestApp) {
     super();
     this.deviceId = deviceId;
     this.appVersion = appVersion;
@@ -122,9 +122,9 @@ public class DeviceProperty implements Parcelable {
     in.readStringList(hostApps);
     requestApp = in.readString();
   }
-
+  
   public static final Parcelable.Creator<DeviceProperty> CREATOR
-          = new Parcelable.Creator<DeviceProperty>() {
+      = new Parcelable.Creator<DeviceProperty>() {
     public DeviceProperty createFromParcel(Parcel in) {
       return new DeviceProperty(in);
     }
@@ -133,7 +133,7 @@ public class DeviceProperty implements Parcelable {
       return new DeviceProperty[size];
     }
   };
-
+  
   @Override
   public int describeContents() {
     return 0;
@@ -164,21 +164,21 @@ public class DeviceProperty implements Parcelable {
     dest.writeStringList(hostApps);
     dest.writeString(requestApp);
   }
-
+  
   public void setRegistrationId(String regid){//TODO temporarily fix
     this.registrationId=regid;
   }
 
   public String getLocation(){
-    return this.location.toString();
+	  return this.location.toString();
   }
-
+  
 }
 
 class GeoLocation implements Parcelable {
   private double longitude;
   private double latitude;
-
+  
   public GeoLocation(double longtitude, double latitude) {
     this.longitude = longtitude;
     this.latitude = latitude;
@@ -189,9 +189,9 @@ class GeoLocation implements Parcelable {
     longitude = in.readDouble();
     latitude = in.readDouble();
   }
-
+  
   public static final Parcelable.Creator<GeoLocation> CREATOR
-          = new Parcelable.Creator<GeoLocation>() {
+      = new Parcelable.Creator<GeoLocation>() {
     public GeoLocation createFromParcel(Parcel in) {
       return new GeoLocation(in);
     }
@@ -200,7 +200,7 @@ class GeoLocation implements Parcelable {
       return new GeoLocation[size];
     }
   };
-
+  
   @Override
   public int describeContents() {
     return 0;
@@ -211,10 +211,10 @@ class GeoLocation implements Parcelable {
     dest.writeDouble(longitude);
     dest.writeDouble(latitude);
   }
-
+  
   @Override
-  public String toString() {
-    return latitude+","+longitude;
-  }
-
+	public String toString() {
+		return latitude+","+longitude;
+	}
+  
 }

@@ -25,11 +25,8 @@ import com.google.myjson.JsonParseException;
 import com.google.myjson.JsonPrimitive;
 import com.google.myjson.JsonSerializationContext;
 import com.google.myjson.JsonSerializer;
-
 import com.mobilyzer.MeasurementDesc;
 import com.mobilyzer.MeasurementTask;
-
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,105 +50,105 @@ import java.util.TimeZone;
  */
 @SuppressWarnings("rawtypes")
 public class MeasurementJsonConvertor {
-  /* 1. Automatically perform bidirectional translations for fields in java
-   *  'lowerCaseCamel' style 
-   * to JSON 'lower_case_with_underscores' style. 
-   * 2. Serialize and de-serialize UTC format date string
-   * 3. It also serializes all null fields to 'null'
-   */
-  public static Gson gson = new GsonBuilder().serializeNulls().
-      registerTypeAdapter(Date.class, new DateTypeConverter()).
-      setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-  private static final DateFormat dateFormat = 
-      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    /* 1. Automatically perform bidirectional translations for fields in java
+     *  'lowerCaseCamel' style
+     * to JSON 'lower_case_with_underscores' style.
+     * 2. Serialize and de-serialize UTC format date string
+     * 3. It also serializes all null fields to 'null'
+     */
+    public static Gson gson = new GsonBuilder().serializeNulls().
+            registerTypeAdapter(Date.class, new DateTypeConverter()).
+            setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+    private static final DateFormat dateFormat =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-  static {
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-  }
-  
-  public static MeasurementTask makeMeasurementTaskFromJson(
-      JSONObject json) throws IllegalArgumentException {  
-    try {
-      String type = String.valueOf(json.getString("type"));
-      Class taskClass = MeasurementTask.getTaskClassForMeasurement(type);
-      Method getDescMethod = taskClass.getMethod("getDescClass");
-      // The getDescClassForMeasurement() is static and takes no arguments
-      Class descClass = (Class) getDescMethod.invoke(null, (Object[]) null);
-      MeasurementDesc measurementDesc =
-          (MeasurementDesc) gson.fromJson(json.toString(), descClass);
-      
-      Object cstParam = measurementDesc;
-      Constructor<MeasurementTask> constructor = 
-          taskClass.getConstructor(MeasurementDesc.class);
-      return constructor.newInstance(cstParam);
-    } catch (JSONException e) {
-      throw new IllegalArgumentException(e);
-    } catch (SecurityException e) {
-      Logger.w(e.getMessage());
-      throw new IllegalArgumentException(e);
-    } catch (NoSuchMethodException e) {
-      Logger.w(e.getMessage());
-      throw new IllegalArgumentException(e);
-    } catch (IllegalArgumentException e) {
-      Logger.w(e.getMessage());
-      throw new IllegalArgumentException(e);
-    } catch (InstantiationException e) {
-      Logger.w(e.getMessage());
-      throw new IllegalArgumentException(e);
-    } catch (IllegalAccessException e) {
-      Logger.w(e.getMessage());
-      throw new IllegalArgumentException(e);
-    } catch (InvocationTargetException e) {
-      Logger.w(e.toString());
-      throw new IllegalArgumentException(e);
-    } 
-  }
-  
-  public static JSONObject encodeToJson(Object obj) throws JSONException {
-    String str = gson.toJson(obj);
-    return new JSONObject(str);
-  }
-  
-  public static String toJsonString(Object obj) {
-    return gson.toJson(obj);
-  }
-  
-  public static Gson getGsonInstance() {
-    return gson;
-  }
-
-  private static class DateTypeConverter 
-      implements JsonSerializer<Date>, JsonDeserializer<Date> {
-    @Override
-    public JsonElement serialize(Date src, Type srcType,
-        JsonSerializationContext context) {
-      return new JsonPrimitive(formatDate(src));
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    @Override
-    public Date deserialize(JsonElement json, Type type,
-        JsonDeserializationContext context) throws JsonParseException {
-      try {
-        return parseDate(json.getAsString());
-      } catch (NumberFormatException e) {
-        throw new JsonParseException("Cannot convert time string: " +
-            json.toString());
-      } catch (IllegalArgumentException e) {
-        Logger.e("Cannot convert time string:" + json.toString());
-        throw new JsonParseException("Cannot convert time string: " +
-            json.toString());
-      } catch (ParseException e) {
-        throw new JsonParseException("Cannot convert UTC time string: "  +
-            json.toString());
-      }
-    }
-  }
-  
-  private static Date parseDate(String dateString) throws ParseException {
-    return dateFormat.parse(dateString);
-  }
+    public static MeasurementTask makeMeasurementTaskFromJson(
+            JSONObject json) throws IllegalArgumentException {
+        try {
+            String type = String.valueOf(json.getString("type"));
+            Class taskClass = MeasurementTask.getTaskClassForMeasurement(type);
+            Method getDescMethod = taskClass.getMethod("getDescClass");
+            // The getDescClassForMeasurement() is static and takes no arguments
+            Class descClass = (Class) getDescMethod.invoke(null, (Object[]) null);
+            MeasurementDesc measurementDesc =
+                    (MeasurementDesc) gson.fromJson(json.toString(), descClass);
 
-  private static String formatDate(Date date) {
-    return dateFormat.format(date);
-  }
+            Object cstParam = measurementDesc;
+            Constructor<MeasurementTask> constructor =
+                    taskClass.getConstructor(MeasurementDesc.class);
+            return constructor.newInstance(cstParam);
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(e);
+        } catch (SecurityException e) {
+            Logger.w(e.getMessage());
+            throw new IllegalArgumentException(e);
+        } catch (NoSuchMethodException e) {
+            Logger.w(e.getMessage());
+            throw new IllegalArgumentException(e);
+        } catch (IllegalArgumentException e) {
+            Logger.w(e.getMessage());
+            throw new IllegalArgumentException(e);
+        } catch (InstantiationException e) {
+            Logger.w(e.getMessage());
+            throw new IllegalArgumentException(e);
+        } catch (IllegalAccessException e) {
+            Logger.w(e.getMessage());
+            throw new IllegalArgumentException(e);
+        } catch (InvocationTargetException e) {
+            Logger.w(e.toString());
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static JSONObject encodeToJson(Object obj) throws JSONException {
+        String str = gson.toJson(obj);
+        return new JSONObject(str);
+    }
+
+    public static String toJsonString(Object obj) {
+        return gson.toJson(obj);
+    }
+
+    public static Gson getGsonInstance() {
+        return gson;
+    }
+
+    private static class DateTypeConverter
+            implements JsonSerializer<Date>, JsonDeserializer<Date> {
+        @Override
+        public JsonElement serialize(Date src, Type srcType,
+                                     JsonSerializationContext context) {
+            return new JsonPrimitive(formatDate(src));
+        }
+
+        @Override
+        public Date deserialize(JsonElement json, Type type,
+                                JsonDeserializationContext context) throws JsonParseException {
+            try {
+                return parseDate(json.getAsString());
+            } catch (NumberFormatException e) {
+                throw new JsonParseException("Cannot convert time string: " +
+                        json.toString());
+            } catch (IllegalArgumentException e) {
+                Logger.e("Cannot convert time string:" + json.toString());
+                throw new JsonParseException("Cannot convert time string: " +
+                        json.toString());
+            } catch (ParseException e) {
+                throw new JsonParseException("Cannot convert UTC time string: " +
+                        json.toString());
+            }
+        }
+    }
+
+    private static Date parseDate(String dateString) throws ParseException {
+        return dateFormat.parse(dateString);
+    }
+
+    private static String formatDate(Date date) {
+        return dateFormat.format(date);
+    }
 }

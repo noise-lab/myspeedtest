@@ -11,8 +11,8 @@ public interface Config {
   /**
    * Strings migrated from string.xml
    */
-  public static final String SERVER_URL = "https://mstuploadtasks.openmobiledata.appspot.com";
-  public static final String ANONYMOUS_SERVER_URL = "https://mstuploadtasks.openmobiledata.appspot.com/anonymous";
+  public static final String SERVER_URL = "https://openmobiledata.appspot.com";
+  public static final String ANONYMOUS_SERVER_URL = "https://openmobiledata.appspot.com/anonymous";
   public static final String TEST_SERVER_URL = "";
   public static final String DEFAULT_USER = "Anonymous";
 
@@ -23,7 +23,7 @@ public interface Config {
   public static final String PING6_EXECUTABLE = "ping6";
   
   public static final String SERVER_TASK_CLIENT_KEY = "LibraryServerTask";
-  public static final String CHECKIN_KEY = "MySpeedTest";
+  public static final String CHECKIN_KEY = "MobilyzerCheckin";
 
   public static final String TASK_STARTED = "TASK_STARTED";
   public static final String TASK_FINISHED = "TASK_FINISHED";
@@ -60,12 +60,11 @@ public interface Config {
   /** Default interval in seconds between system measurements of a given measurement type */
   public static final double DEFAULT_SYSTEM_MEASUREMENT_INTERVAL_SEC = 15 * 60;
   /** Default interval in seconds between context collection */
-  public static final int DEFAULT_CONTEXT_INTERVAL_SEC = 2;
+  public static final int DEFAULT_CONTEXT_INTERVAL_SEC = 5;
   public static final int MAX_CONTEXT_INFO_COLLECTIONS_PER_TASK = 120;
 
 
 
-  // TODO check these static values
   public static final int DEFAULT_DNS_COUNT_PER_MEASUREMENT = 1;
   public static final int PING_COUNT_PER_MEASUREMENT = 10;
   public static final float PING_FILTER_THRES = (float) 1.4;

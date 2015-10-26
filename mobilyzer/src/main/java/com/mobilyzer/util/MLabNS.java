@@ -42,7 +42,7 @@ public class MLabNS {
    * Query MLab-NS to get an FQDN for the given tool.
    */
   static public ArrayList<String> Lookup(Context context, String tool) {
-    return Lookup(context, tool, "ipv4", "fqdn");
+    return Lookup(context, tool, null, "fqdn");
   }
 
   /**

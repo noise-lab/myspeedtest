@@ -108,15 +108,15 @@ public abstract class MeasurementDesc implements Parcelable {
     return false;
 
   }
-
+  
   public void setParameters(Map<String, String> newParams){
-    this.parameters=newParams;
+	  this.parameters=newParams;
   }
-
+  
   public void setType(String type){
-    this.type=type;
+	  this.type=type;
   }
-
+  
   @Override
   public String toString() {
     String result=type+","+key+","+intervalSec+","+count+","+priority+","+contextIntervalSec+",";
@@ -145,7 +145,7 @@ public abstract class MeasurementDesc implements Parcelable {
 //    parameters = in.readHashMap();
     parameters=new HashMap<String, String>();
     int parametersSize = in.readInt();
-
+    
     for (int i = 0; i < parametersSize; i++) {
       parameters.put(in.readString(), in.readString());
     }
@@ -169,8 +169,8 @@ public abstract class MeasurementDesc implements Parcelable {
 //    dest.writeMap(parameters);
     dest.writeInt(parameters.size());
     for (String s: parameters.keySet()) {
-      dest.writeString(s);
-      dest.writeString(parameters.get(s));
+        dest.writeString(s);
+        dest.writeString(parameters.get(s));
     }
   }
 }
