@@ -3,6 +3,7 @@ package com.num.controller.managers;
 import android.content.Context;
 import android.os.Handler;
 
+import com.mobilyzer.Config;
 import com.mobilyzer.MeasurementTask;
 import com.mobilyzer.api.API;
 import com.mobilyzer.exceptions.MeasurementError;
@@ -44,7 +45,7 @@ public class ThroughputManager {
     }
 
     public static void execute(Context c) {
-        API mobilyzer = API.getAPI(c, "My Speed Test");
+        API mobilyzer = API.getAPI(c, Config.CHECKIN_KEY);
         Map<String, String> params = new HashMap<String, String>();
         int priority = MeasurementTask.USER_PRIORITY;
         Date endTime = null;

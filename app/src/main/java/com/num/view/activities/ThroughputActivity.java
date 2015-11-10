@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.mobilyzer.Config;
 import com.mobilyzer.MeasurementResult;
 import com.mobilyzer.UpdateIntent;
 import com.mobilyzer.api.API;
@@ -62,7 +63,7 @@ public class ThroughputActivity extends ActionBarActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        API mobilyzer = API.getAPI(this, "My Speed Test");
+        API mobilyzer = API.getAPI(this, Config.CHECKIN_KEY);
         br = new ThroughputReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(mobilyzer.userResultAction);

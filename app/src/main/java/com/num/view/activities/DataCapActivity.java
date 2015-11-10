@@ -12,6 +12,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.mobilyzer.Config;
+import com.mobilyzer.MeasurementScheduler;
+import com.mobilyzer.api.API;
+import com.mobilyzer.exceptions.MeasurementError;
+import com.mobilyzer.util.Logger;
 import com.num.R;
 
 public class DataCapActivity extends Activity {
@@ -49,11 +54,27 @@ public class DataCapActivity extends Activity {
                 int index = radioGroup.getCheckedRadioButtonId();
                 if(index<0) return;
 
+
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor e = prefs.edit();
                 e.putString("pref_data_cap", radioGroup_values[index]);
                 e.commit();
                 finish();
+
+                try {
+                    API api = API.getAPI(DataCapActivity.this, Config.CHECKIN_KEY);
+                    if (index == 0) {
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.UNLIMITED);
+                    } else if (index == 1 || index == 7 || index == 8) {//DEFAULT PROFILE, ~250MB
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE3);
+                    } else if (index >= 2 && index <= 5) {//~50MB
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE1);
+                    } else if (index == 6) {//~100MB
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE2);
+                    }
+                }catch (MeasurementError measurementError){
+                    Logger.e("Error setting data usage profile");
+                }
 
                 Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(myIntent);

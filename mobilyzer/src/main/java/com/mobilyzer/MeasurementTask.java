@@ -13,6 +13,7 @@ import com.mobilyzer.measurements.HttpTask;
 import com.mobilyzer.measurements.PageLoadTimeTask;
 import com.mobilyzer.measurements.PingTask;
 import com.mobilyzer.measurements.RRCTask;
+import com.mobilyzer.measurements.SequentialTask;
 import com.mobilyzer.measurements.TCPThroughputTask;
 import com.mobilyzer.measurements.TracerouteTask;
 import com.mobilyzer.measurements.UDPBurstTask;
@@ -56,6 +57,7 @@ public abstract class MeasurementTask
     measurementDescToType.put(UDPBurstTask.DESCRIPTOR, UDPBurstTask.TYPE);
     measurementTypes.put(RRCTask.TYPE, RRCTask.class);
     measurementTypes.put(PageLoadTimeTask.TYPE, PageLoadTimeTask.class);
+    measurementTypes.put(SequentialTask.TYPE, SequentialTask.class);
 //    measurementDescToType.put(PageLoadTimeTask.DESCRIPTOR, PageLoadTimeTask.TYPE);
 
     // Hongyi: RRCTask is not accessible by users. So we don't put RRC descriptor
@@ -215,8 +217,8 @@ public abstract class MeasurementTask
   }
 
   protected MeasurementTask(Parcel in) {
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    measurementDesc = in.readParcelable(loader);
+//    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    measurementDesc = in.readParcelable(MeasurementDesc.class.getClassLoader());
     taskId = in.readString();
   }
 
