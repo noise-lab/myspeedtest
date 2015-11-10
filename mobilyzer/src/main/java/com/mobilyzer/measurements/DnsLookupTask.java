@@ -237,7 +237,7 @@ public class DnsLookupTask extends MeasurementTask {
         byte[] output = query.toWire();
         int udpSize = SimpleResolver.maxUDPSize(query);
         DnsLookupDesc desc = (DnsLookupDesc) this.measurementDesc;
-        long endTime = System.currentTimeMillis() + 25;
+        long endTime = System.currentTimeMillis() + 60 * 5 * 1000;
 
         /* the people who wrote the DNS code were not awesome and didn't have abstract methods,
          * so the code doesn't let me use their superclass, client. Therefore, I'm doing the hacky
@@ -271,9 +271,9 @@ public class DnsLookupTask extends MeasurementTask {
         long startTime = 0;
         long respTime;
         ArrayList<DNSWrapper> responses = new ArrayList<DNSWrapper>();
-        if (debug) Log.e("testing", "about to start loop current time" + System.currentTimeMillis() + " end time: " + endTime);
+        if (debug) Log.e("testing", "about to start loop current time " + System.currentTimeMillis() + " end time: " + endTime);
         while (System.currentTimeMillis() < endTime) {
-            byte[] in = null;
+            byte[] in = {};
 
             if (debug) Log.e("testing", "in send loop");
             if (shouldSend) {
@@ -306,7 +306,7 @@ public class DnsLookupTask extends MeasurementTask {
             // means we will break out if we are over time
             if (in.length == 0) {
                 if (debug) Log.e("testing", "empty response, breaking out");
-                continue;
+                break;
             }
 
             DNSWrapper wrap;
@@ -381,7 +381,7 @@ public class DnsLookupTask extends MeasurementTask {
 
                 // now turn the result into an array of hashmaps with the data we care about
 
-                HashMap<String, Object>[] data = extractResults(responses);
+                List<HashMap<String, Object>> data = extractResults(responses);
                 result.addResult("results", data);
                 result.addResult("target", desc.target);
                 result.addResult("qtype", desc.qtype);
@@ -390,11 +390,18 @@ public class DnsLookupTask extends MeasurementTask {
                 Logger.i(MeasurementJsonConvertor.toJsonString(result));
                 results.add(result);
             }
-            return (MeasurementResult []) results.toArray();
+
+            // create the result array to return
+            MeasurementResult resultsFinal [] = new MeasurementResult[results.size()];
+            for (int i = 0; i < resultsFinal.length; i++) {
+                resultsFinal[i] = results.get(i);
+            }
+
+            return resultsFinal;
         }
     }
 
-    public HashMap<String, Object>[] extractResults(ArrayList<DNSWrapper> responses) {
+    public List<HashMap<String, Object>> extractResults(ArrayList<DNSWrapper> responses) {
         ArrayList<HashMap<String, Object>> data = new ArrayList<>();
         for (DNSWrapper wrap : responses) {
             Message resp = null;
@@ -436,7 +443,7 @@ public class DnsLookupTask extends MeasurementTask {
             item.put("answers", answers.toArray());
             data.add(item);
         }
-        return (HashMap<String, Object>[]) data.toArray();
+        return data;
     }
 
     @SuppressWarnings("rawtypes")
