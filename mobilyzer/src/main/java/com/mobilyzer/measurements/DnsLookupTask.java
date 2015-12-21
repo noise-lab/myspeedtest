@@ -66,6 +66,7 @@ public class DnsLookupTask extends MeasurementTask {
         public String server;
         public String qclass;
         public String qtype;
+        public boolean sensitive;
 
 
         public DnsLookupDesc(String key, Date startTime, Date endTime,
@@ -102,6 +103,13 @@ public class DnsLookupTask extends MeasurementTask {
                 this.target = this.target + ".";
             }
 
+            if (params.containsKey("sensitive")) {
+                this.sensitive = Boolean.valueOf(params.get("sensitive"));
+            } else {
+                this.sensitive = false;
+            }
+
+
             /* we are extending the DNS measurement to allow setting
              * arbitrary query classes and types, but we want to maintain
              * backwards compatibility. Therefore, we are going to default
@@ -127,6 +135,7 @@ public class DnsLookupTask extends MeasurementTask {
             server = in.readString();
             qclass = in.readString();
             qtype = in.readString();
+            sensitive = in.readByte() != 0;
         }
 
         public static final Parcelable.Creator<DnsLookupDesc> CREATOR =
@@ -147,6 +156,7 @@ public class DnsLookupTask extends MeasurementTask {
             dest.writeString(server);
             dest.writeString(qclass);
             dest.writeString(qtype);
+            dest.writeByte((byte) (sensitive ? 1 : 0));
         }
     }
 

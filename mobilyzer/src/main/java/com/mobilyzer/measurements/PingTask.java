@@ -86,6 +86,8 @@ public class PingTask extends MeasurementTask{
     public int pingTimeToLive= PingTask.DEFAULT_PING_TTL;
     public double pingIcmpIntervalSec= Config.DEFAULT_INTERVAL_BETWEEN_ICMP_PACKET_SEC;
 
+    public boolean sensitive;
+
 
     public PingDesc(String key, Date startTime,
                     Date endTime, double intervalSec, long count, long priority, int contextIntervalSec,
@@ -128,6 +130,11 @@ public class PingTask extends MeasurementTask{
       } catch (NumberFormatException e) {
         throw new InvalidParameterException("PingTask cannot be created due to invalid params");
       }
+      if (params.containsKey("sensitive")) {
+        this.sensitive = Boolean.valueOf(params.get("sensitive"));
+      } else {
+        this.sensitive = false;
+      }
     }
 
     @Override
@@ -143,6 +150,7 @@ public class PingTask extends MeasurementTask{
       pingTimeoutSec = in.readInt();
       pingTimeToLive = in.readInt();
       pingIcmpIntervalSec = in.readDouble();
+      sensitive = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<PingDesc> CREATOR
@@ -165,6 +173,7 @@ public class PingTask extends MeasurementTask{
       dest.writeInt(pingTimeoutSec);
       dest.writeInt(pingTimeToLive);
       dest.writeDouble(pingIcmpIntervalSec);
+      dest.writeByte((byte) (sensitive ? 1 : 0));
     }
   }
 

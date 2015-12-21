@@ -132,6 +132,7 @@ public class HttpTask extends MeasurementTask {
     public String url;
     public String method;
     public String headers;
+    public boolean sensitive;
     // TODO more fields may be needed
 
     public HttpDesc(String key, Date startTime, Date endTime,
@@ -165,6 +166,12 @@ public class HttpTask extends MeasurementTask {
       }
 
       this.headers = params.get("headers");
+
+      if (params.containsKey("sensitive")) {
+        this.sensitive = Boolean.valueOf(params.get("sensitive"));
+      } else {
+        this.sensitive = false;
+      }
     }
 
     @Override
@@ -177,6 +184,7 @@ public class HttpTask extends MeasurementTask {
       url = in.readString();
       method = in.readString();
       headers = in.readString();
+      sensitive = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<HttpDesc> CREATOR =
@@ -196,6 +204,7 @@ public class HttpTask extends MeasurementTask {
       dest.writeString(url);
       dest.writeString(method);
       dest.writeString(headers);
+      dest.writeByte((byte) (sensitive ? 1 : 0));
     }
   }
 
