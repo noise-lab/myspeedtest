@@ -24,6 +24,9 @@ import android.content.Intent;
 import com.mobilyzer.MeasurementResult.TaskProgress;
 import com.mobilyzer.exceptions.MeasurementError;
 import com.mobilyzer.exceptions.MeasurementSkippedException;
+import com.mobilyzer.measurements.DnsLookupTask;
+import com.mobilyzer.measurements.HttpTask;
+import com.mobilyzer.measurements.PingTask;
 import com.mobilyzer.util.Logger;
 import com.mobilyzer.util.PhoneUtils;
 
@@ -142,6 +145,19 @@ public class ServerMeasurementTask implements Callable<MeasurementResult[]> {
 				ArrayList<HashMap<String, String>> contextResults = contextCollector
 						.stopCollector();
 				for (MeasurementResult r : results) {
+					boolean sensitive = false;
+					if(r.getType().equals(DnsLookupTask.TYPE)){
+						sensitive = ((DnsLookupTask.DnsLookupDesc) (r.getMeasurementDesc())).sensitive;
+					} else if(r.getType().equals(HttpTask.TYPE)) {
+						sensitive = ((HttpTask.HttpDesc) (r.getMeasurementDesc())).sensitive;
+					}else if (r.getType().equals(PingTask.TYPE)) {
+						sensitive = ((PingTask.PingDesc) (r.getMeasurementDesc())).sensitive;
+					}
+
+					if (sensitive){
+						r.addResult("sensitive", sensitive );
+					}
+
 					r.addContextResults(contextResults);
 					r.getDeviceProperty().dnResolvability = contextCollector.dnsConnectivity;
 					r.getDeviceProperty().ipConnectivity = contextCollector.ipConnectivity;
