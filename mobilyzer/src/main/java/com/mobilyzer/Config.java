@@ -13,6 +13,7 @@ public interface Config {
    */
   public static final String SERVER_URL = "https://mstuploadtasks.openmobiledata.appspot.com";
   public static final String ANONYMOUS_SERVER_URL = "https://mstuploadtasks.openmobiledata.appspot.com/anonymous";
+  public static final String NOISE_SERVER_URL = "http://ben.noise.gatech.edu:8000";
   public static final String TEST_SERVER_URL = "";
   public static final String DEFAULT_USER = "Anonymous";
 
