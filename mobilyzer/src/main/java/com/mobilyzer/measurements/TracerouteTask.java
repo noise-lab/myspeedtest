@@ -95,7 +95,9 @@ public class TracerouteTask extends MeasurementTask
     // the total number of pings will send before we declarethe traceroute fails
     private int maxHopCount;        
     // the location of the ping binary. Only used internally
-    private String pingExe;         
+    private String pingExe;
+
+    private boolean sensitive;
 
     public TracerouteDesc(String key, Date startTime,
         Date endTime, double intervalSec, long count, long priority, 
@@ -160,6 +162,12 @@ public class TracerouteTask extends MeasurementTask
         throw new InvalidParameterException("PingTask cannot be created due " + 
             "to invalid params");
       }
+
+      if (params.containsKey("sensitive")) {
+        this.sensitive = Boolean.valueOf(params.get("sensitive"));
+      } else {
+        this.sensitive = false;
+      }
     }
 
     protected TracerouteDesc(Parcel in) {
@@ -171,6 +179,7 @@ public class TracerouteTask extends MeasurementTask
       pingsPerHop = in.readInt();
       maxHopCount = in.readInt();
       pingExe = in.readString();
+      sensitive = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<TracerouteDesc> CREATOR
@@ -194,6 +203,7 @@ public class TracerouteTask extends MeasurementTask
       dest.writeInt(pingsPerHop);
       dest.writeInt(maxHopCount);
       dest.writeString(pingExe);
+      dest.writeByte((byte) (sensitive ? 1 : 0));
     }
   }
 
