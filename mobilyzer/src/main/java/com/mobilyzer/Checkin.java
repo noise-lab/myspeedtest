@@ -148,7 +148,7 @@ public class Checkin {
       Logger.d("Checkin: "+status.toString());
       
       
-      String result = serviceRequest("checkin", status.toString());
+      String result = serviceRequest("checkin", status.toString(), true);
       Logger.d("Checkin result: " + result);
       if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
     	  resourceCapManager.updateDataUsage(result.length());
@@ -255,11 +255,15 @@ public class Checkin {
         Logger.e("Error when adding " + result);
       }
     }
-    
+    JSONArray sensitiveArray= new JSONArray();
     JSONArray chunckedArray= new JSONArray();
     int i=0;
     for (;i<resultArray.length();i++){
       try {
+        if(resultArray.getJSONObject(i).has("sensitive")){
+          sensitiveArray.put(resultArray.getJSONObject(i));
+        }
+
         chunckedArray.put(resultArray.getJSONObject(i));
       } catch (JSONException e) {
         Logger.e("Error when adding index " +i + " to array");
@@ -276,9 +280,27 @@ public class Checkin {
       uploadChunkedArray(chunckedArray, resourceCapManager);
     }
     Logger.i("TaskSchedule.uploadMeasurementResult() complete");
+    uploadSensitiveResults(sensitiveArray,resourceCapManager);
     
   }
-  
+
+  private void uploadSensitiveResults(JSONArray resultArray, ResourceCapManager resourceCapManager)
+          throws IOException {
+    Logger.i("uploadSensitiveResults uploading: " +
+            resultArray.toString());
+    if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
+      resourceCapManager.updateDataUsage(resultArray.toString().length());
+    }
+    String response = serviceRequest(Config.NOISE_SERVER_URL, resultArray.toString(), false);
+    try {
+      JSONObject responseJson = new JSONObject(response);
+      if (!responseJson.getBoolean("success")) {
+        throw new IOException("Failure posting measurement result");
+      }
+    } catch (JSONException e) {
+      throw new IOException(e.getMessage());
+    }
+  }
   
   private  void uploadChunkedArray(JSONArray resultArray, ResourceCapManager resourceCapManager)
       throws IOException {
@@ -287,7 +309,7 @@ public class Checkin {
     if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
     	resourceCapManager.updateDataUsage(resultArray.toString().length());
     }
-    String response = serviceRequest("postmeasurement", resultArray.toString());
+    String response = serviceRequest("postmeasurement", resultArray.toString(), true);
     try {
       JSONObject responseJson = new JSONObject(response);
       if (!responseJson.getBoolean("success")) {
@@ -308,7 +330,7 @@ public class Checkin {
       if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
     	  resourceCapManager.updateDataUsage(resultJson.toString().length());
       }
-      String response = serviceRequest("postgcmmeasurement", resultJson.toString());
+      String response = serviceRequest("postgcmmeasurement", resultJson.toString(), true);
       try {
         JSONObject responseJson = new JSONObject(response);
         if (!responseJson.getBoolean("success")) {
@@ -410,8 +432,10 @@ public class Checkin {
     client.setCookieStore(store);
     return client;
   }
-  
-  public String serviceRequest(String url, String jsonString) 
+
+
+
+  public String serviceRequest(String url, String jsonString, boolean isGAERequest)
       throws IOException {
     
     if (this.accountSelector == null) {
@@ -428,9 +452,15 @@ public class Checkin {
     }
     
     HttpClient client = getNewHttpClient();
-    String fullurl = (accountSelector.isAnonymous() ?
-                      phoneUtils.getAnonymousServerUrl() :
-                      phoneUtils.getServerUrl()) + "/" + url;
+    String fullurl;
+    if(isGAERequest){
+      fullurl = (accountSelector.isAnonymous() ?
+              phoneUtils.getAnonymousServerUrl() :
+              phoneUtils.getServerUrl()) + "/" + url;
+    } else{
+      fullurl = url;
+    }
+
     Logger.i("Checking in to " + fullurl);
     HttpPost postMethod = new HttpPost(fullurl);
     
