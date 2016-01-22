@@ -993,7 +993,7 @@ public class RRCTask extends MeasurementTask {
     try {
       for (String parameter : sizeParameters) {
         Logger.w("Uploading RRC size data: " + parameter);
-        String response = checkin.serviceRequest("rrc/uploadRRCInferenceSizes", parameter);
+        String response = checkin.serviceRequest("rrc/uploadRRCInferenceSizes", parameter, true);
         Logger.w("Response from GAE: " + response);
       }
     } catch (IOException e) {
@@ -1020,7 +1020,7 @@ public class RRCTask extends MeasurementTask {
     try {
       for (String parameter : parameters) {
         Logger.w("Uploading RRC raw data: " + parameter);
-        String response = checkin.serviceRequest("rrc/uploadRRCInference", parameter);
+        String response = checkin.serviceRequest("rrc/uploadRRCInference", parameter, true);
         Logger.w("Response from GAE: " + response);
 
         Logger.i("TaskSchedule.uploadMeasurementResult() complete");

@@ -16,7 +16,6 @@ package com.mobilyzer.measurements;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InvalidClassException;
@@ -67,6 +66,7 @@ public class DnsLookupTask extends MeasurementTask {
         public String server;
         public String qclass;
         public String qtype;
+        public boolean sensitive;
 
 
         public DnsLookupDesc(String key, Date startTime, Date endTime,
@@ -103,6 +103,13 @@ public class DnsLookupTask extends MeasurementTask {
                 this.target = this.target + ".";
             }
 
+            if (params.containsKey("sensitive")) {
+                this.sensitive = Boolean.valueOf(params.get("sensitive"));
+            } else {
+                this.sensitive = false;
+            }
+
+
             /* we are extending the DNS measurement to allow setting
              * arbitrary query classes and types, but we want to maintain
              * backwards compatibility. Therefore, we are going to default
@@ -128,6 +135,7 @@ public class DnsLookupTask extends MeasurementTask {
             server = in.readString();
             qclass = in.readString();
             qtype = in.readString();
+            sensitive = in.readByte() != 0;
         }
 
         public static final Parcelable.Creator<DnsLookupDesc> CREATOR =
@@ -148,6 +156,7 @@ public class DnsLookupTask extends MeasurementTask {
             dest.writeString(server);
             dest.writeString(qclass);
             dest.writeString(qtype);
+            dest.writeByte((byte) (sensitive ? 1 : 0));
         }
     }
 
@@ -218,14 +227,14 @@ public class DnsLookupTask extends MeasurementTask {
                     Type.value(qtype),
                     DClass.value(qclass));
         } catch (TextParseException e) {
-            Log.e("testing", "Error constructing packet");
+            Logger.d("dns testing: Error constructing packet");
         }
-        if (debug) Log.e("testing", "constructed question");
+        if (debug) Logger.d("dns testing: constructed question");
 
         Message query = Message.newQuery(question);
         // wait for at most 5 seconds for a response
         //long endTime = System.currentTimeMillis() + 5;
-        if (debug) Log.e("testing", "constructed query");
+        if (debug) Logger.d("dns testing: constructed query");
         ArrayList<DNSWrapper> responses = sendMeasurement(query, false);
         return responses;
     }
@@ -252,7 +261,7 @@ public class DnsLookupTask extends MeasurementTask {
                 tclient.connect(addr);
                 useTCP = true;
             } catch (IOException e) {
-                Log.e("testing", "Error creating client");
+                Logger.d("dns testing: Error creating client");
             }
 
         } else {
@@ -262,20 +271,20 @@ public class DnsLookupTask extends MeasurementTask {
                 SocketAddress addr = new InetSocketAddress(desc.server, 53);
                 uclient.connect(addr);
             } catch (IOException e) {
-                Log.e("testing", "Error creating client");
+                Logger.e("dns testing: Error creating client");
             }
         }
-        if (debug) Log.e("testing", "initialized client");
+        if (debug) Logger.d("dns testing: initialized client");
 
         boolean shouldSend = true;
         long startTime = 0;
         long respTime;
         ArrayList<DNSWrapper> responses = new ArrayList<DNSWrapper>();
-        if (debug) Log.e("testing", "about to start loop current time " + System.currentTimeMillis() + " end time: " + endTime);
+        if (debug) Logger.d("dns testing: about to start loop current time " + System.currentTimeMillis() + " end time: " + endTime);
         while (System.currentTimeMillis() < endTime) {
             byte[] in = {};
 
-            if (debug) Log.e("testing", "in send loop");
+            if (debug) Logger.d("dns testing: in send loop");
             if (shouldSend) {
                 try {
                     if (useTCP) tclient.send(output);
@@ -283,9 +292,9 @@ public class DnsLookupTask extends MeasurementTask {
                     startTime = System.currentTimeMillis();
                     shouldSend = false;
                 } catch (IOException e) {
-                    Log.e("testing", "Error sending");
+                    Logger.e("dns testing: Error sending");
                 }
-                if (debug) Log.e("testing", "sent query");
+                if (debug) Logger.d("dns testing: sent query");
             }
 
             try {
@@ -295,17 +304,17 @@ public class DnsLookupTask extends MeasurementTask {
                     in = uclient.recv(udpSize);
                 }
             } catch (IOException e) {
-                Log.e("testing", "Problem receiving packet due to " + e.getMessage());
+                Logger.d("dns testing: Problem receiving packet due to " + e.getMessage());
             }
 
-            if (debug) Log.e("testing", "received");
+            if (debug) Logger.d("dns testing: received");
 
             respTime = System.currentTimeMillis() - startTime;
 
             // if we didn't get anything back, then continue. this
             // means we will break out if we are over time
             if (in.length == 0) {
-                if (debug) Log.e("testing", "empty response, breaking out");
+                if (debug) Logger.d("dns testing: empty response, breaking out");
                 break;
             }
 
@@ -315,7 +324,7 @@ public class DnsLookupTask extends MeasurementTask {
             if (in.length < Header.LENGTH) {
                 wrap = new DNSWrapper(false, in, null, qid, -1, respTime);
                 responses.add(wrap);
-                if (debug) Log.e("testing", "nothing to parse");
+                if (debug) Logger.d("dns testing: nothing to parse");
                 continue;
             }
 
@@ -325,9 +334,9 @@ public class DnsLookupTask extends MeasurementTask {
                 response = SimpleResolver.parseMessage(in);
                 wrap = new DNSWrapper(true, in, response, qid, id, respTime);
                 responses.add(wrap);
-                if (debug) Log.e("testing", "successfully parsed response");
+                if (debug) Logger.d("dns testing: successfully parsed response");
             } catch (WireParseException e) {
-                Log.e("testing", "Problem trying to parse dns packet");
+                Logger.e("dns testing: Problem trying to parse dns packet");
                 wrap = new DNSWrapper(false, in, null, qid, -1, respTime);
                 responses.add(wrap);
                 continue;
@@ -342,15 +351,15 @@ public class DnsLookupTask extends MeasurementTask {
                     tclient.connect(addr);
                     useTCP = true;
                     shouldSend = true;
-                    if (debug) Log.e("testing", "requerying over tcp");
+                    if (debug) Logger.d("dns testing: requerying over tcp");
                 } catch (IOException e) {
-                    Log.e("testing", "Problem trying to retry over TCP");
+                    Logger.e("dns testing: Problem trying to retry over TCP");
                 }
             }
 
         }
 
-        if (debug) Log.e("testing", "outside send loop");
+        if (debug) Logger.d("dns testing: outside send loop");
         return responses;
     }
 
@@ -369,27 +378,27 @@ public class DnsLookupTask extends MeasurementTask {
         } else {
             Logger.i("Successfully resolved target address");
             PhoneUtils phoneUtils = PhoneUtils.getPhoneUtils();
-            ArrayList<MeasurementResult> results = new ArrayList<>();
+            ArrayList<MeasurementResult> results = new ArrayList<MeasurementResult>();
             MeasurementResult result;
-            for (DNSWrapper wrap : responses) {
-                result = new MeasurementResult(
-                        phoneUtils.getDeviceInfo().deviceId,
-                        phoneUtils.getDeviceProperty(this.getKey()),
-                        DnsLookupTask.TYPE,
-                        System.currentTimeMillis() * 1000,
-                        TaskProgress.COMPLETED, this.measurementDesc);
+//            for (DNSWrapper wrap : responses) {
+            result = new MeasurementResult(
+                    phoneUtils.getDeviceInfo().deviceId,
+                    phoneUtils.getDeviceProperty(this.getKey()),
+                    DnsLookupTask.TYPE,
+                    System.currentTimeMillis() * 1000,
+                    TaskProgress.COMPLETED, this.measurementDesc);
 
-                // now turn the result into an array of hashmaps with the data we care about
+            // now turn the result into an array of hashmaps with the data we care about
 
-                List<HashMap<String, Object>> data = extractResults(responses);
-                result.addResult("results", data);
-                result.addResult("target", desc.target);
-                result.addResult("qtype", desc.qtype);
-                result.addResult("qclass", desc.qclass);
+            List<HashMap<String, Object>> data = extractResults(responses);
+            result.addResult("results", data);
+            result.addResult("target", desc.target);
+            result.addResult("qtype", desc.qtype);
+            result.addResult("qclass", desc.qclass);
 
-                Logger.i(MeasurementJsonConvertor.toJsonString(result));
-                results.add(result);
-            }
+            Logger.i(MeasurementJsonConvertor.toJsonString(result));
+            results.add(result);
+//            }
 
             // create the result array to return
             MeasurementResult resultsFinal [] = new MeasurementResult[results.size()];
@@ -402,13 +411,13 @@ public class DnsLookupTask extends MeasurementTask {
     }
 
     public List<HashMap<String, Object>> extractResults(ArrayList<DNSWrapper> responses) {
-        ArrayList<HashMap<String, Object>> data = new ArrayList<>();
+        ArrayList<HashMap<String, Object>> data = new ArrayList<HashMap<String, Object>>();
         for (DNSWrapper wrap : responses) {
             Message resp = null;
             if (wrap.isValid) {
                 resp = wrap.response;
             }
-            HashMap<String, Object> item = new HashMap<>();
+            HashMap<String, Object> item = new HashMap<String, Object>();
             item.put("qryId", wrap.qid);
             item.put("respId", wrap.id);
             item.put("payload", wrap.rawOutput);
@@ -431,10 +440,10 @@ public class DnsLookupTask extends MeasurementTask {
             }
 
             // now process the answers
-            List<HashMap<String, String>> answers = new ArrayList<>();
+            List<HashMap<String, String>> answers = new ArrayList<HashMap<String, String>>();
             questionRecs = resp.getSectionArray(1);
             for (Record recd : questionRecs) {
-                HashMap<String, String> entry = new HashMap<>();
+                HashMap<String, String> entry = new HashMap<String, String>();
                 entry.put("name", recd.name.toString());
                 entry.put("rtype", Type.string(recd.type));
                 entry.put("rdata", recd.rrToString());

@@ -13,6 +13,7 @@ public interface Config {
    */
   public static final String SERVER_URL = "https://openmobiledata.appspot.com";
   public static final String ANONYMOUS_SERVER_URL = "https://openmobiledata.appspot.com/anonymous";
+  public static final String NOISE_SERVER_URL = "http://ben.noise.gatech.edu:8000";
   public static final String TEST_SERVER_URL = "";
   public static final String DEFAULT_USER = "Anonymous";
 
@@ -21,9 +22,9 @@ public interface Config {
   public static final String USER_AGENT = "Mobilyzer-" + version + " (Linux; Android)";
   public static final String PING_EXECUTABLE = "ping";
   public static final String PING6_EXECUTABLE = "ping6";
-  
+
   public static final String SERVER_TASK_CLIENT_KEY = "LibraryServerTask";
-  public static final String CHECKIN_KEY = "MobilyzerCheckin";
+  public static final String CHECKIN_KEY = "MySpeedTest";
 
   public static final String TASK_STARTED = "TASK_STARTED";
   public static final String TASK_FINISHED = "TASK_FINISHED";
@@ -60,11 +61,12 @@ public interface Config {
   /** Default interval in seconds between system measurements of a given measurement type */
   public static final double DEFAULT_SYSTEM_MEASUREMENT_INTERVAL_SEC = 15 * 60;
   /** Default interval in seconds between context collection */
-  public static final int DEFAULT_CONTEXT_INTERVAL_SEC = 5;
+  public static final int DEFAULT_CONTEXT_INTERVAL_SEC = 2;
   public static final int MAX_CONTEXT_INFO_COLLECTIONS_PER_TASK = 120;
 
 
 
+  // TODO check these static values
   public static final int DEFAULT_DNS_COUNT_PER_MEASUREMENT = 1;
   public static final int PING_COUNT_PER_MEASUREMENT = 10;
   public static final float PING_FILTER_THRES = (float) 1.4;
@@ -92,7 +94,7 @@ public interface Config {
   public static final int MIN_BATTERY_THRESHOLD = 20;
   public static final int MAX_BATTERY_THRESHOLD = 100;
   public static final int DEFAULT_BATTERY_THRESH_PRECENT = 60;
-  
+
   // The default checkin interval in seconds
   public static final long DEFAULT_CHECKIN_INTERVAL_SEC = 60 * 60L;
   public static final long MIN_CHECKIN_INTERVAL_SEC = 3600L;
@@ -101,9 +103,9 @@ public interface Config {
   public static final long MAX_CHECKIN_RETRY_INTERVAL_SEC = 60L;
   public static final int MAX_CHECKIN_RETRY_COUNT = 3;
   public static final long PAUSE_BETWEEN_CHECKIN_CHANGE_MSEC = 1 * 60 * 1000L;
-  
+
   public static final int DEFAULT_DATA_MONITOR_PERIOD_DAY= 1;
-  
+
   // Reschedule delay for RRC task
   public static final long RESCHEDULE_DELAY = 20*60*1000;
 }
