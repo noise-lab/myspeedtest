@@ -407,7 +407,12 @@ public class PhoneUtils {
 			criteriaCoarse.setPowerRequirement(Criteria.POWER_LOW);
 			String providerName =
 					manager.getBestProvider(criteriaCoarse, /*enabledOnly=*/true);
-
+			// if the location provider is null, then fall back on a disabled provider
+			if (providerName == null) {
+				Logger.i("Location: unable to find enabled coarse location provider, falling back to disabled.");
+				providerName = manager.getBestProvider(criteriaCoarse, /*enabledOnly=*/false);
+			}
+			Logger.i("Location: Using location provider " + providerName);
 
 			List<String> providers = manager.getAllProviders();
 			for (String providerNameIter : providers) {
@@ -415,10 +420,10 @@ public class PhoneUtils {
 					LocationProvider provider = manager.getProvider(providerNameIter);
 				} catch (SecurityException se) {
 					// Not allowed to use this provider
-					Logger.w("Unable to use provider " + providerNameIter);
+					Logger.w("Location: Unable to use provider " + providerNameIter);
 					continue;
 				}
-				Logger.i(providerNameIter + ": " +
+				Logger.i("Location: " + providerNameIter + ": " +
 						(manager.isProviderEnabled(providerNameIter) ? "enabled" : "disabled"));
 			}
 
@@ -427,11 +432,13 @@ public class PhoneUtils {
 			 * device powercycle may not update it.
 			 * {@see android.location.LocationManager.getLastKnownLocation}.
 			 */
+			Logger.i("Location: providerName final: " + providerName);
 			manager.requestLocationUpdates(providerName,
 					/*minTime=*/0,
 					/*minDistance=*/0,
 					new LoggingLocationListener(),
 					Looper.getMainLooper());
+
 			locationManager = manager;
 			locationProviderName = providerName;
 		}
