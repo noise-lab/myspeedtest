@@ -53,8 +53,8 @@ public class MeasurementAlarmReceiver extends BroadcastReceiver {
                     break;
                 case Constants.DAILY_INTERVAL:
                     Log.d(TAG, "Background Daily Update");
-                    DnsManager dnsManager=new DnsManager(context);
-                    dnsManager.execute();
+                    //DnsManager dnsManager=new DnsManager(context);
+                    //dnsManager.execute();
                     break;
                 default:
 

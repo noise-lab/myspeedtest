@@ -24,6 +24,7 @@
     <string name="survey_title">Available Surveys:</string>
     <string name="title_activity_survey_taking">SurveyTaking</string>
     <string name="title_activity_display_survey">DisplaySurvey</string>
+    <string name="title_activity_interference_consent">InterferenceConsent</string>
 
 
 </resources>

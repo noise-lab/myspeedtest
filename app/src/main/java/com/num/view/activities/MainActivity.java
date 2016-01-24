@@ -69,11 +69,12 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        configureButton = (LinearLayout) findViewById(R.id.main_button_configure);
+        configureButton = (LinearLayout) findViewById(R.id.main_button_interference);
         configureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(activity, SettingsActivity.class);
+                //Intent i = new Intent(activity, SettingsActivity.class);
+                Intent i = new Intent(activity, InterferenceConsentActivity.class);
                 startActivity(i);
             }
         });
