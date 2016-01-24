@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.myjson.JsonObject;
 import com.mobilyzer.gcm.GCMManager;
 import com.mobilyzer.util.Logger;
 import com.mobilyzer.util.MeasurementJsonConvertor;
@@ -66,7 +67,11 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -248,6 +253,7 @@ public class Checkin {
   public void uploadMeasurementResult(Vector<MeasurementResult> finishedTasks, ResourceCapManager resourceCapManager)
       throws IOException {
     JSONArray resultArray = readResultsFromFile();
+    //Logger.d("dns test starting an upload: " + resultArray.toString());
     for (MeasurementResult result : finishedTasks) {
       try {
         resultArray.put(MeasurementJsonConvertor.encodeToJson(result));
@@ -259,13 +265,37 @@ public class Checkin {
     JSONArray chunckedArray= new JSONArray();
     int i=0;
     for (;i<resultArray.length();i++){
+      boolean is_sensitive = false;
       try {
-        if(resultArray.getJSONObject(i).has("sensitive")){
-          sensitiveArray.put(resultArray.getJSONObject(i));
+        //if(resultArray.getJSONObject(i).has("sensitive")){
+        JSONObject item = resultArray.getJSONObject(i);
+        //Logger.d("dns test item: " + item.toString());
+        /*String testKeys = "dns test keys: ";
+        Iterator itr = item.keys();
+        while (itr.hasNext()) {
+          testKeys += itr.next().toString() + " ";
         }
+        Logger.d(testKeys);
+        if (item.has("is_sensitive")) {
+          Logger.d("dns test has is_sensitive: " + item.get("is_sensitive"));
+          is_sensitive = item.getBoolean("is_sensitive");
+        }*/
+        if(item.has("parameters")) {
+          JSONObject params = item.getJSONObject("parameters");
+          //Logger.d("dns test item has params: " + params.toString());
+          if (params.has("sensitive") && params.get("sensitive") == true) {
+            is_sensitive = true;
+          }
+        }
+        //Logger.d("dns test is sensitive: " + is_sensitive);
 
-        chunckedArray.put(resultArray.getJSONObject(i));
-      } catch (JSONException e) {
+        if (is_sensitive) {
+          //Logger.d("dns test put in sensitive");
+          sensitiveArray.put(resultArray.getJSONObject(i));
+        } else {
+          chunckedArray.put(resultArray.getJSONObject(i));
+        }
+      } catch (JSONException ex) {
         Logger.e("Error when adding index " +i + " to array");
       }
 

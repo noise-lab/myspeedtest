@@ -334,29 +334,52 @@ public class MeasurementScheduler extends Service {
         };
         this.registerReceiver(broadcastReceiver, filter);
 
+        Logger.d("dns test starting to add dns stuff");
 
-        // create dns and http measurements
         HashMap<String, String> params = new HashMap<>();
-        params.put("server", "8.8.8.8");
-        params.put("target", "www.google.com");
-        params.put("qclass", "IN");
-        params.put("qtype", "AAAA");
-        MeasurementDesc dnsDesc = new DnsLookupTask.DnsLookupDesc("test1",
+        params.put("target", "VERSION.BIND");
+        params.put("qclass", "CH");
+        params.put("qtype", "TXT");
+        params.put("sensitive", "true");
+        MeasurementDesc dnsDesc = new DnsLookupTask.DnsLookupDesc("fpr_local_resolver",
                 Calendar.getInstance().getTime(), null , 120, 1, MeasurementTask.USER_PRIORITY , 5, params);
         MeasurementTask task = new DnsLookupTask(dnsDesc);
         task.generateTaskID();
         submitTask(task);
 
         params = new HashMap<>();
-        params.put("url", "www.google.com");
-        params.put("method", "GET");
-        params.put("headers", "x-test: testing");
-        MeasurementDesc httpDesc = new HttpTask.HttpDesc("test1", new Date(System.currentTimeMillis() - 1000),
-                new Date(System.currentTimeMillis() + (600 * 10000)),
-                5, 1, MeasurementTask.USER_PRIORITY, 5, params);
-        task = new HttpTask(httpDesc);
+        params.put("target", "VERSION.SERVER");
+        params.put("qclass", "CH");
+        params.put("qtype", "TXT");
+        params.put("sensitive", "true");
+        dnsDesc = new DnsLookupTask.DnsLookupDesc("fpr_local_resolver",
+                Calendar.getInstance().getTime(), null , 120, 1, MeasurementTask.USER_PRIORITY , 5, params);
+        task = new DnsLookupTask(dnsDesc);
         task.generateTaskID();
         submitTask(task);
+
+        params = new HashMap<>();
+        params.put("target", "HOSTNAME.BIND");
+        params.put("qclass", "CH");
+        params.put("qtype", "TXT");
+        params.put("sensitive", "true");
+        dnsDesc = new DnsLookupTask.DnsLookupDesc("fpr_local_resolver",
+                Calendar.getInstance().getTime(), null , 120, 1, MeasurementTask.USER_PRIORITY , 5, params);
+        task = new DnsLookupTask(dnsDesc);
+        task.generateTaskID();
+        submitTask(task);
+
+        params = new HashMap<>();
+        params.put("target", "ID.SERVER");
+        params.put("qclass", "CH");
+        params.put("qtype", "TXT");
+        params.put("sensitive", "true");
+        dnsDesc = new DnsLookupTask.DnsLookupDesc("fpr_local_resolver",
+                Calendar.getInstance().getTime(), null , 120, 1, MeasurementTask.USER_PRIORITY , 5, params);
+        task = new DnsLookupTask(dnsDesc);
+        task.generateTaskID();
+        submitTask(task);
+
 
         this.context = getApplicationContext();
     }
@@ -438,6 +461,7 @@ public class MeasurementScheduler extends Service {
         String currentCheckinInterval =
                 prefs.getString(Config.PREF_KEY_CHECKIN_INTERVAL,
                         String.valueOf(Config.DEFAULT_CHECKIN_INTERVAL_SEC));
+        //String currentCheckinInterval = "30";
         setCheckinInterval(false, Long.parseLong(currentCheckinInterval));
 
         // Fetch the data limit with 250 MB as a default

@@ -19,6 +19,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Map;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -59,6 +60,7 @@ public class MeasurementResult implements Parcelable {
   private String type;
   private TaskProgress taskProgress;
   private MeasurementDesc parameters;
+  public boolean isSensitive;
   private HashMap<String, String> values;
   private ArrayList<HashMap<String, String>> contextResults;
 
@@ -89,6 +91,15 @@ public class MeasurementResult implements Parcelable {
     }
     this.parameters = measurementDesc;
     this.parameters.parameters = measurementDesc.parameters;
+    Map<String, String> params = measurementDesc.parameters;
+    //Logger.d("dns test sensResult: " + params.toString());
+    if (params.containsKey("sensitive") && Boolean.valueOf(params.get("sensitive"))){
+      this.isSensitive = true;
+      //Logger.d("dns test sensResult: marking isSens as true (" + params.get("sensitive") + ")");
+    } else {
+      //Logger.d("dns test sensResult: marking isSens as false");
+      this.isSensitive = false;
+    }
     this.values = new HashMap<String, String>();
     this.contextResults = new ArrayList<HashMap<String, String>>();
   }
@@ -223,6 +234,10 @@ public class MeasurementResult implements Parcelable {
    */
   public String getParameter(String key) {
     return this.parameters.parameters.get(key);
+  }
+
+  public Boolean hasParameter(String key) {
+    return this.parameters.parameters.containsKey(key);
   }
 
   public void setMeasurmentDesc(MeasurementDesc desc){

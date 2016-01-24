@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.google.myjson.JsonArray;
+import com.google.myjson.JsonObject;
 import com.mobilyzer.MeasurementResult.TaskProgress;
 import com.mobilyzer.exceptions.MeasurementError;
 import com.mobilyzer.util.Logger;
@@ -32,6 +33,7 @@ import com.mobilyzer.util.PhoneUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class UserMeasurementTask implements Callable<MeasurementResult[]> {
     private MeasurementTask realTask;
@@ -107,6 +109,8 @@ public class UserMeasurementTask implements Callable<MeasurementResult[]> {
                 r.addContextResults(contextResults);
                 r.getDeviceProperty().dnResolvability = contextCollector.dnsConnectivity;
                 r.getDeviceProperty().ipConnectivity = contextCollector.ipConnectivity;
+
+                //Logger.d("dns test isSens: " + r.isSensitive);
             }
         } catch (MeasurementError e) {
             Logger.e("User measurement " + realTask.getDescriptor() + " has failed");
@@ -129,7 +133,9 @@ public class UserMeasurementTask implements Callable<MeasurementResult[]> {
         JSONArray resultArray = new JSONArray();
         for (MeasurementResult result : results) {
             try {
-                resultArray.put(MeasurementJsonConvertor.encodeToJson(result));
+                JSONObject item = MeasurementJsonConvertor.encodeToJson(result);
+                //Logger.d("dns test: result isSensJs " + result.isSensitive + " item " + item.get("is_sensitive"));
+                resultArray.put(item);
             } catch (JSONException e) {
                 Log.e("Testing", "Problem encoding results");
             }
@@ -146,6 +152,7 @@ public class UserMeasurementTask implements Callable<MeasurementResult[]> {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //Logger.d("dns test: received measurement: " + stringy);
         return results;
     }
 

@@ -104,8 +104,22 @@ public interface Config {
   public static final int MAX_CHECKIN_RETRY_COUNT = 3;
   public static final long PAUSE_BETWEEN_CHECKIN_CHANGE_MSEC = 1 * 60 * 1000L;
 
+  /* Constants for doing a short checkin (useful for debugging)
+  public static final long DEFAULT_CHECKIN_INTERVAL_SEC = 10L;
+  public static final long MIN_CHECKIN_INTERVAL_SEC = 5L;
+  public static final long MAX_CHECKIN_INTERVAL_SEC = 30L;
+  public static final long MIN_CHECKIN_RETRY_INTERVAL_SEC = 5L;
+  public static final long MAX_CHECKIN_RETRY_INTERVAL_SEC = 30L;
+  public static final int MAX_CHECKIN_RETRY_COUNT = 3;
+  public static final long PAUSE_BETWEEN_CHECKIN_CHANGE_MSEC = 1 * 5L;
+  */
+
   public static final int DEFAULT_DATA_MONITOR_PERIOD_DAY= 1;
 
   // Reschedule delay for RRC task
   public static final long RESCHEDULE_DELAY = 20*60*1000;
+
+
+  // myspeedtest constants
+  public static final String SHARED_PREFERENCES_NAME = "com.num";
 }
