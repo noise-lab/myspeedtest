@@ -10,6 +10,9 @@ public class Constants {
     public static final String LOG_TAG = "My Speed Test";
     public static final boolean DEBUG = true;
 
+    /* Survey constants */
+    public static final String SURVEY_SERVER_ADDRESS = "http://ruggles.gtnoise.net/surveys";
+
     /* Threads */
     public static final int CORE_POOL_SIZE = 10;
     public static final int MAX_POOL_SIZE = 10;

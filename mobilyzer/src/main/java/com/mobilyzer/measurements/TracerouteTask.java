@@ -48,7 +48,7 @@ import com.mobilyzer.util.Util;
 /**
  * A Callable task that handles Traceroute measurements
  */
-public class TracerouteTask extends MeasurementTask 
+public class TracerouteTask extends MeasurementTask
       implements PreemptibleMeasurementTask{
   // Type name for internal use
   public static final String TYPE = "traceroute";
@@ -72,14 +72,14 @@ public class TracerouteTask extends MeasurementTask
   private volatile boolean pauseFlag;
   public ArrayList<HopInfo> hopHosts;//TODO: change it to private
   private long totalRunningTime;
-  private int ttl; 
+  private int ttl;
   private int maxHopCount;
-  
+
   //Track data consumption for this task to avoid exceeding user's limit
   private long dataConsumed;
 
   /**
-   * The description of the Traceroute measurement 
+   * The description of the Traceroute measurement
    */
   public static class TracerouteDesc extends MeasurementDesc {
     // the host name or IP address to use as the target of the traceroute.
@@ -89,16 +89,18 @@ public class TracerouteTask extends MeasurementTask
     // the number of seconds we wait for a ping response.
     private int pingTimeoutSec;
     // the interval between successive pings in seconds
-    private double pingIntervalSec; 
+    private double pingIntervalSec;
     // the number of pings we use for each ttl value
-    private int pingsPerHop;        
+    private int pingsPerHop;
     // the total number of pings will send before we declarethe traceroute fails
-    private int maxHopCount;        
+    private int maxHopCount;
     // the location of the ping binary. Only used internally
-    private String pingExe;         
+    private String pingExe;
+
+    private boolean sensitive;
 
     public TracerouteDesc(String key, Date startTime,
-        Date endTime, double intervalSec, long count, long priority, 
+        Date endTime, double intervalSec, long count, long priority,
         int contextIntervalSec, Map<String, String> params)
             throws InvalidParameterException {
       super(TracerouteTask.TYPE, key, startTime, endTime, intervalSec,
@@ -124,11 +126,11 @@ public class TracerouteTask extends MeasurementTask
 
       // HTTP specific parameters according to the design document
       this.target = params.get("target");
-      try {        
+      try {
         String val;
         if ((val = params.get("packet_size_byte")) != null && val.length() > 0 &&
             Integer.parseInt(val) > 0) {
-          this.packetSizeByte = Integer.parseInt(val);  
+          this.packetSizeByte = Integer.parseInt(val);
         } else {
           this.packetSizeByte = TracerouteTask.DEFAULT_PING_PACKET_SIZE;
         }
@@ -150,15 +152,21 @@ public class TracerouteTask extends MeasurementTask
         } else {
           this.pingsPerHop = TracerouteTask.DEFAULT_PINGS_PER_HOP;
         }
-        if ((val = params.get("max_hop_count")) != null && val.length() > 0 && 
+        if ((val = params.get("max_hop_count")) != null && val.length() > 0 &&
             Integer.parseInt(val) > 0) {
-          this.maxHopCount = Integer.parseInt(val);  
+          this.maxHopCount = Integer.parseInt(val);
         } else {
           this.maxHopCount = TracerouteTask.DEFAULT_MAX_HOP_CNT;
         }
       } catch (NumberFormatException e) {
-        throw new InvalidParameterException("PingTask cannot be created due " + 
+        throw new InvalidParameterException("PingTask cannot be created due " +
             "to invalid params");
+      }
+
+      if (params.containsKey("sensitive")) {
+        this.sensitive = Boolean.valueOf(params.get("sensitive"));
+      } else {
+        this.sensitive = false;
       }
     }
 
@@ -171,6 +179,7 @@ public class TracerouteTask extends MeasurementTask
       pingsPerHop = in.readInt();
       maxHopCount = in.readInt();
       pingExe = in.readString();
+      sensitive = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<TracerouteDesc> CREATOR
@@ -186,7 +195,7 @@ public class TracerouteTask extends MeasurementTask
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-      super.writeToParcel(dest, flags);          
+      super.writeToParcel(dest, flags);
       dest.writeString(target);
       dest.writeInt(packetSizeByte);
       dest.writeInt(pingTimeoutSec);
@@ -194,6 +203,7 @@ public class TracerouteTask extends MeasurementTask
       dest.writeInt(pingsPerHop);
       dest.writeInt(maxHopCount);
       dest.writeString(pingExe);
+      dest.writeByte((byte) (sensitive ? 1 : 0));
     }
   }
 
@@ -314,7 +324,7 @@ public class TracerouteTask extends MeasurementTask
             }
           }
           pingProc = Runtime.getRuntime().exec(command);
-          
+
           // Actual packet is 28 bytes larger than the size specified.
           // Three packets are sent in each direction
           dataConsumed += (task.packetSizeByte + 28) * 2 * 3;
@@ -347,7 +357,7 @@ public class TracerouteTask extends MeasurementTask
           InputStream is = pingProc.getInputStream();
           BufferedReader br = new BufferedReader(new InputStreamReader(is));
           /* Process each line of the ping output and extracts the intermediate
-           * hops into hostAtThisDistance */ 
+           * hops into hostAtThisDistance */
           processPingOutput(br, hostsAtThisDistance, hostIp);
           cleanUp(pingProc);
           try {
@@ -385,8 +395,8 @@ public class TracerouteTask extends MeasurementTask
             //            success = true;
             taskProgress=TaskProgress.COMPLETED;
             PhoneUtils phoneUtils = PhoneUtils.getPhoneUtils();
-            result = new MeasurementResult(phoneUtils.getDeviceInfo().deviceId, 
-                phoneUtils.getDeviceProperty(this.getKey()), TracerouteTask.TYPE, 
+            result = new MeasurementResult(phoneUtils.getDeviceInfo().deviceId,
+                phoneUtils.getDeviceProperty(this.getKey()), TracerouteTask.TYPE,
                 System.currentTimeMillis() * 1000, taskProgress,
                 this.measurementDesc);
             result.addResult("num_hops", ttl);
@@ -428,8 +438,8 @@ public class TracerouteTask extends MeasurementTask
       stopFlag=false;
       pauseFlag=false;
       PhoneUtils phoneUtils = PhoneUtils.getPhoneUtils();
-      result = new MeasurementResult(phoneUtils.getDeviceInfo().deviceId, 
-          phoneUtils.getDeviceProperty(this.getKey()), TracerouteTask.TYPE, 
+      result = new MeasurementResult(phoneUtils.getDeviceInfo().deviceId,
+          phoneUtils.getDeviceProperty(this.getKey()), TracerouteTask.TYPE,
           System.currentTimeMillis() * 1000, taskProgress, this.measurementDesc);
       Logger.i(MeasurementJsonConvertor.toJsonString(result));
       MeasurementResult[] mrArray= new MeasurementResult[1];
@@ -443,7 +453,7 @@ public class TracerouteTask extends MeasurementTask
       stopFlag=false;
       pauseFlag=false;
       hopHosts.clear();
-      
+
       MeasurementResult[] mrArray = MeasurementResult.getFailureResult(this,
         new MeasurementError("cancelled"));
       Logger.i(MeasurementJsonConvertor.toJsonString(mrArray[0]));
@@ -497,7 +507,7 @@ public class TracerouteTask extends MeasurementTask
    * in case different outputs from ping due to its different versions, we need
    * to refine the search by testing weather any substring of the tokens
    * contains a valid IP */
-  private String getHostIp(String line) {      
+  private String getHostIp(String line) {
     String[] tokens = line.split(" ");
     // In most cases, the second element in the array is the IP
     String tempIp = tokens[1];
@@ -532,7 +542,7 @@ public class TracerouteTask extends MeasurementTask
     if (tokens.length == 4) {
       for (int i = 0; i < 4; i++) {
         try {
-          int val = Integer.parseInt(tokens[i]); 
+          int val = Integer.parseInt(tokens[i]);
           if (val < 0 || val > 255) {
             return false;
           }
@@ -544,7 +554,7 @@ public class TracerouteTask extends MeasurementTask
       return true;
     }
     return false;
-  }  
+  }
 
   //Tells whether the string is an valid IPv6 address
   private boolean isValidIpv6Addr(String ip) {
@@ -556,7 +566,7 @@ public class TracerouteTask extends MeasurementTask
           // zeros might get grouped
           if (tokens[i].isEmpty())
             continue;
-          int val = Integer.parseInt(tokens[i], 16); 
+          int val = Integer.parseInt(tokens[i], 16);
           if (val < 0 || val > max) {
             return false;
           }
@@ -607,7 +617,7 @@ public class TracerouteTask extends MeasurementTask
       } catch (InterruptedException e) {
         Logger.e("Traceroute thread gets interrupted");
       }
-    }  
+    }
   }
 
   @Override
@@ -641,12 +651,12 @@ public class TracerouteTask extends MeasurementTask
   public long getTotalRunningTime() {
     return this.totalRunningTime;
   }
-  
+
   @Override
   public void updateTotalRunningTime(long duration){
     this.totalRunningTime+=duration;
   }
-  
+
   /**
    * Based on counting the number of pings sent
    */

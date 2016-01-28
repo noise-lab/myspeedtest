@@ -13,6 +13,7 @@ public interface Config {
    */
   public static final String SERVER_URL = "https://openmobiledata.appspot.com";
   public static final String ANONYMOUS_SERVER_URL = "https://openmobiledata.appspot.com/anonymous";
+  public static final String NOISE_SERVER_URL = "http://ruggles.gtnoise.net/measurement_mobi";
   public static final String TEST_SERVER_URL = "";
   public static final String DEFAULT_USER = "Anonymous";
 
@@ -21,9 +22,9 @@ public interface Config {
   public static final String USER_AGENT = "Mobilyzer-" + version + " (Linux; Android)";
   public static final String PING_EXECUTABLE = "ping";
   public static final String PING6_EXECUTABLE = "ping6";
-  
+
   public static final String SERVER_TASK_CLIENT_KEY = "LibraryServerTask";
-  public static final String CHECKIN_KEY = "MobilyzerCheckin";
+  public static final String CHECKIN_KEY = "MySpeedTest";
 
   public static final String TASK_STARTED = "TASK_STARTED";
   public static final String TASK_FINISHED = "TASK_FINISHED";
@@ -93,7 +94,7 @@ public interface Config {
   public static final int MIN_BATTERY_THRESHOLD = 20;
   public static final int MAX_BATTERY_THRESHOLD = 100;
   public static final int DEFAULT_BATTERY_THRESH_PRECENT = 60;
-  
+
   // The default checkin interval in seconds
   public static final long DEFAULT_CHECKIN_INTERVAL_SEC = 60 * 60L;
   public static final long MIN_CHECKIN_INTERVAL_SEC = 3600L;
@@ -102,9 +103,23 @@ public interface Config {
   public static final long MAX_CHECKIN_RETRY_INTERVAL_SEC = 60L;
   public static final int MAX_CHECKIN_RETRY_COUNT = 3;
   public static final long PAUSE_BETWEEN_CHECKIN_CHANGE_MSEC = 1 * 60 * 1000L;
-  
+
+  /* Constants for doing a short checkin (useful for debugging)
+  public static final long DEFAULT_CHECKIN_INTERVAL_SEC = 10L;
+  public static final long MIN_CHECKIN_INTERVAL_SEC = 5L;
+  public static final long MAX_CHECKIN_INTERVAL_SEC = 30L;
+  public static final long MIN_CHECKIN_RETRY_INTERVAL_SEC = 5L;
+  public static final long MAX_CHECKIN_RETRY_INTERVAL_SEC = 30L;
+  public static final int MAX_CHECKIN_RETRY_COUNT = 3;
+  public static final long PAUSE_BETWEEN_CHECKIN_CHANGE_MSEC = 1 * 5L;
+  */
+
   public static final int DEFAULT_DATA_MONITOR_PERIOD_DAY= 1;
-  
+
   // Reschedule delay for RRC task
   public static final long RESCHEDULE_DELAY = 20*60*1000;
+
+
+  // myspeedtest constants
+  public static final String SHARED_PREFERENCES_NAME = "com.num";
 }

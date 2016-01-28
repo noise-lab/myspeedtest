@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.myjson.JsonObject;
 import com.mobilyzer.gcm.GCMManager;
 import com.mobilyzer.util.Logger;
 import com.mobilyzer.util.MeasurementJsonConvertor;
@@ -66,7 +67,11 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -86,7 +91,7 @@ public class Checkin {
   private AccountSelector accountSelector = null;
   PhoneUtils phoneUtils;
   String gcm_registraion_id;
-  
+
   public Checkin(Context context) {
     phoneUtils = PhoneUtils.getPhoneUtils();
     this.context = context;
@@ -99,7 +104,7 @@ public class Checkin {
       this.accountSelector.shutDown();
     }
   }
-  
+
   /** Return a fake authentication cookie for a test server instance */
   private Cookie getFakeAuthCookie() {
     BasicClientCookie cookie = new BasicClientCookie(
@@ -111,11 +116,11 @@ public class Checkin {
     cookie.setSecure(false);
     return cookie;
   }
-  
+
   public Date lastCheckinTime() {
     return this.lastCheckin;
   }
-  
+
   public List<MeasurementTask> checkin(ResourceCapManager resourceCapManager, GCMManager gcm) throws IOException {
     Logger.i("Checkin.checkin() called");
     boolean checkinSuccess = false;
@@ -123,54 +128,54 @@ public class Checkin {
     try {
       JSONObject status = new JSONObject();
       DeviceInfo info = phoneUtils.getDeviceInfo();
-      // TODO(Wenjie): There is duplicated info here, such as device ID. 
+      // TODO(Wenjie): There is duplicated info here, such as device ID.
       status.put("id", info.deviceId);
       status.put("manufacturer", info.manufacturer);
       status.put("model", info.model);
       status.put("os", info.os);
       /**
        * TODO: checkin task don't belongs to any app. So we just fill
-       * request_app field with server task key   
+       * request_app field with server task key
        */
-      
+
       DeviceProperty deviceProperty=phoneUtils.getDeviceProperty(Config.CHECKIN_KEY);
       deviceProperty.setRegistrationId(gcm.getRegistrationId());
       Logger.d("Checkin-> GCMManager: "+gcm.getRegistrationId());
-      
+
       status.put("properties", MeasurementJsonConvertor.encodeToJson(deviceProperty));
-      
+
       if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
-    	  resourceCapManager.updateDataUsage(ResourceCapManager.PHONEUTILCOST);
+          resourceCapManager.updateDataUsage(ResourceCapManager.PHONEUTILCOST);
       }
-      
+
       Logger.d(status.toString());
-      
+
       Logger.d("Checkin: "+status.toString());
-      
-      
-      String result = serviceRequest("checkin", status.toString());
+
+
+      String result = serviceRequest("checkin", status.toString(), true);
       Logger.d("Checkin result: " + result);
       if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
-    	  resourceCapManager.updateDataUsage(result.length());
+          resourceCapManager.updateDataUsage(result.length());
       }
-      
+
       // Parse the result
       Vector<MeasurementTask> schedule = new Vector<MeasurementTask>();
       JSONArray jsonArray = new JSONArray(result);
-      
+
 
       for (int i = 0; i < jsonArray.length(); i++) {
         Logger.d("Parsing index " + i);
         JSONObject json = jsonArray.optJSONObject(i);
         Logger.d("Value is " + json);
-        // checkin task must support 
-        if (json != null && 
+        // checkin task must support
+        if (json != null &&
             MeasurementTask.getMeasurementTypes().contains(json.get("type"))) {
           try {
-            MeasurementTask task = 
+            MeasurementTask task =
                 MeasurementJsonConvertor.makeMeasurementTaskFromJson(json);
             Logger.i(MeasurementJsonConvertor.toJsonString(task.measurementDesc));
-            
+
             schedule.add(task);
           } catch (IllegalArgumentException e) {
             Logger.w("Could not create task from JSON: " + e);
@@ -178,7 +183,7 @@ public class Checkin {
           }
         }
       }
-      
+
       this.lastCheckin = new Date();
       Logger.i("Checkin complete, got " + schedule.size() +
           " new tasks");
@@ -202,7 +207,7 @@ public class Checkin {
 
   /**
    * Read in the results of tasks completed to date from a file, then clear the file.
-   * 
+   *
    * @return The results as a JSONArray, ready for sending to the server.
    */
   private synchronized JSONArray readResultsFromFile() {
@@ -210,7 +215,7 @@ public class Checkin {
     JSONArray results = new JSONArray();
     try {
       Logger.d("Loading results from disk: "+context.getFilesDir());
-      
+
       FileInputStream inputstream = context.openFileInput("results");
       InputStreamReader streamreader = new InputStreamReader(inputstream);
       BufferedReader bufferedreader = new BufferedReader(streamreader);
@@ -244,10 +249,11 @@ public class Checkin {
     }
     return results;
   }
-  
+
   public void uploadMeasurementResult(Vector<MeasurementResult> finishedTasks, ResourceCapManager resourceCapManager)
       throws IOException {
     JSONArray resultArray = readResultsFromFile();
+    //Logger.d("dns test starting an upload: " + resultArray.toString());
     for (MeasurementResult result : finishedTasks) {
       try {
         resultArray.put(MeasurementJsonConvertor.encodeToJson(result));
@@ -255,16 +261,44 @@ public class Checkin {
         Logger.e("Error when adding " + result);
       }
     }
-    
+    JSONArray sensitiveArray= new JSONArray();
     JSONArray chunckedArray= new JSONArray();
     int i=0;
     for (;i<resultArray.length();i++){
+      boolean is_sensitive = false;
       try {
-        chunckedArray.put(resultArray.getJSONObject(i));
-      } catch (JSONException e) {
+        //if(resultArray.getJSONObject(i).has("sensitive")){
+        JSONObject item = resultArray.getJSONObject(i);
+        //Logger.d("dns test item: " + item.toString());
+        /*String testKeys = "dns test keys: ";
+        Iterator itr = item.keys();
+        while (itr.hasNext()) {
+          testKeys += itr.next().toString() + " ";
+        }
+        Logger.d(testKeys);
+        if (item.has("is_sensitive")) {
+          Logger.d("dns test has is_sensitive: " + item.get("is_sensitive"));
+          is_sensitive = item.getBoolean("is_sensitive");
+        }*/
+        if(item.has("parameters")) {
+          JSONObject params = item.getJSONObject("parameters");
+          //Logger.d("dns test item has params: " + params.toString());
+          if (params.has("sensitive") && params.get("sensitive").equals("true")) {
+            is_sensitive = true;
+          }
+        }
+        //Logger.d("dns test is sensitive: " + is_sensitive);
+
+        if (is_sensitive) {
+          //Logger.d("dns test put in sensitive");
+          sensitiveArray.put(resultArray.getJSONObject(i));
+        } else {
+          chunckedArray.put(resultArray.getJSONObject(i));
+        }
+      } catch (JSONException ex) {
         Logger.e("Error when adding index " +i + " to array");
       }
-      
+
       if((i+1)%100==0){
         Logger.d("uploading "+chunckedArray.length()+" measurements");
         uploadChunkedArray(chunckedArray, resourceCapManager);
@@ -276,18 +310,18 @@ public class Checkin {
       uploadChunkedArray(chunckedArray, resourceCapManager);
     }
     Logger.i("TaskSchedule.uploadMeasurementResult() complete");
-    
+    uploadSensitiveResults(sensitiveArray,resourceCapManager);
+
   }
-  
-  
-  private  void uploadChunkedArray(JSONArray resultArray, ResourceCapManager resourceCapManager)
-      throws IOException {
-    Logger.i("uploadChunkedArray uploading: " + 
-        resultArray.toString());
+
+  private void uploadSensitiveResults(JSONArray resultArray, ResourceCapManager resourceCapManager)
+          throws IOException {
+    Logger.i("uploadSensitiveResults uploading: " +
+            resultArray.toString());
     if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
-    	resourceCapManager.updateDataUsage(resultArray.toString().length());
+      resourceCapManager.updateDataUsage(resultArray.toString().length());
     }
-    String response = serviceRequest("postmeasurement", resultArray.toString());
+    String response = serviceRequest(Config.NOISE_SERVER_URL, resultArray.toString(), false);
     try {
       JSONObject responseJson = new JSONObject(response);
       if (!responseJson.getBoolean("success")) {
@@ -297,7 +331,25 @@ public class Checkin {
       throw new IOException(e.getMessage());
     }
   }
-  
+
+  private  void uploadChunkedArray(JSONArray resultArray, ResourceCapManager resourceCapManager)
+      throws IOException {
+    Logger.i("uploadChunkedArray uploading: " +
+        resultArray.toString());
+    if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
+        resourceCapManager.updateDataUsage(resultArray.toString().length());
+    }
+    String response = serviceRequest("postmeasurement", resultArray.toString(), true);
+    try {
+      JSONObject responseJson = new JSONObject(response);
+      if (!responseJson.getBoolean("success")) {
+        throw new IOException("Failure posting measurement result");
+      }
+    } catch (JSONException e) {
+      throw new IOException(e.getMessage());
+    }
+  }
+
   public void uploadGCMMeasurementResult(MeasurementResult result, ResourceCapManager resourceCapManager)
       throws IOException {
     JSONObject resultJson;
@@ -306,9 +358,9 @@ public class Checkin {
       resultJson = MeasurementJsonConvertor.encodeToJson(result);
       Logger.d("GCM Measurement result converted to json: "+resultJson.toString());
       if (PhoneUtils.getPhoneUtils().getNetwork() != PhoneUtils.NETWORK_WIFI) {
-    	  resourceCapManager.updateDataUsage(resultJson.toString().length());
+          resourceCapManager.updateDataUsage(resultJson.toString().length());
       }
-      String response = serviceRequest("postgcmmeasurement", resultJson.toString());
+      String response = serviceRequest("postgcmmeasurement", resultJson.toString(), true);
       try {
         JSONObject responseJson = new JSONObject(response);
         if (!responseJson.getBoolean("success")) {
@@ -321,10 +373,10 @@ public class Checkin {
       Logger.d("TaskSchedule.uploadGCMMeasurementResult() complete");
     }
     Logger.d("TaskSchedule.uploadGCMMeasurementResult() complete");
-    
+
   }
-  
-  
+
+
   /**
    * Used to generate SSL sockets.
    */
@@ -385,7 +437,7 @@ public class Checkin {
       HttpParams params = new BasicHttpParams();
       HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
       HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
-      
+
       HttpConnectionParams.setConnectionTimeout(params, POST_TIMEOUT_MILLISEC);
       HttpConnectionParams.setSoTimeout(params, POST_TIMEOUT_MILLISEC);
 
@@ -401,7 +453,7 @@ public class Checkin {
       Logger.w("Unable to create SSL HTTP client", e);
       client = new DefaultHttpClient();
     }
-    
+
     // TODO(mdw): For some reason this is not sending the cookie to the
     // test server, probably because the cookie itself is not properly
     // initialized. Below I manually set the Cookie header instead.
@@ -410,10 +462,12 @@ public class Checkin {
     client.setCookieStore(store);
     return client;
   }
-  
-  public String serviceRequest(String url, String jsonString) 
+
+
+
+  public String serviceRequest(String url, String jsonString, boolean isGAERequest)
       throws IOException {
-    
+
     if (this.accountSelector == null) {
       accountSelector = new AccountSelector(context);
     }
@@ -426,14 +480,20 @@ public class Checkin {
         }
       }
     }
-    
+
     HttpClient client = getNewHttpClient();
-    String fullurl = (accountSelector.isAnonymous() ?
-                      phoneUtils.getAnonymousServerUrl() :
-                      phoneUtils.getServerUrl()) + "/" + url;
+    String fullurl;
+    if(isGAERequest){
+      fullurl = (accountSelector.isAnonymous() ?
+              phoneUtils.getAnonymousServerUrl() :
+              phoneUtils.getServerUrl()) + "/" + url;
+    } else{
+      fullurl = url;
+    }
+
     Logger.i("Checking in to " + fullurl);
     HttpPost postMethod = new HttpPost(fullurl);
-    
+
     StringEntity se;
     try {
       se = new StringEntity(jsonString);
@@ -453,7 +513,7 @@ public class Checkin {
     String result = client.execute(postMethod, responseHandler);
     return result;
   }
-  
+
   /**
    * Initiates the process to get the authentication cookie for the user account.
    * Returns immediately.
@@ -467,7 +527,7 @@ public class Checkin {
     if (this.accountSelector == null) {
       accountSelector = new AccountSelector(context);
     }
-    
+
     try {
       // Authenticates if there are no ongoing ones
       if (accountSelector.getCheckinFuture() == null) {
@@ -481,7 +541,7 @@ public class Checkin {
       Logger.e("Unable to get auth cookie", e);
     }
   }
-  
+
   /**
    * Resets the checkin variables in AccountSelector
    * */
@@ -489,7 +549,7 @@ public class Checkin {
     accountSelector.resetCheckinFuture();
     accountSelector.setAuthImmediately(false);
   }
-  
+
   private synchronized boolean checkGetCookie() {
     if (phoneUtils.isTestingServer(phoneUtils.getServerUrl())) {
       authCookie = getFakeAuthCookie();
@@ -517,6 +577,6 @@ public class Checkin {
       return false;
     }
   }
-  
-  
+
+
 }

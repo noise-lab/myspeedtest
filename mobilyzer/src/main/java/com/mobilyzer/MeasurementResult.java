@@ -19,6 +19,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Map;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -59,6 +60,7 @@ public class MeasurementResult implements Parcelable {
   private String type;
   private TaskProgress taskProgress;
   private MeasurementDesc parameters;
+  public boolean isSensitive;
   private HashMap<String, String> values;
   private ArrayList<HashMap<String, String>> contextResults;
 
@@ -89,6 +91,15 @@ public class MeasurementResult implements Parcelable {
     }
     this.parameters = measurementDesc;
     this.parameters.parameters = measurementDesc.parameters;
+    Map<String, String> params = measurementDesc.parameters;
+    //Logger.d("dns test sensResult: " + params.toString());
+    if (params.containsKey("sensitive") && Boolean.valueOf(params.get("sensitive"))){
+      this.isSensitive = true;
+      //Logger.d("dns test sensResult: marking isSens as true (" + params.get("sensitive") + ")");
+    } else {
+      //Logger.d("dns test sensResult: marking isSens as false");
+      this.isSensitive = false;
+    }
     this.values = new HashMap<String, String>();
     this.contextResults = new ArrayList<HashMap<String, String>>();
   }
@@ -225,6 +236,14 @@ public class MeasurementResult implements Parcelable {
     return this.parameters.parameters.get(key);
   }
 
+  public Boolean hasParameter(String key) {
+    return this.parameters.parameters.containsKey(key);
+  }
+
+  public void setMeasurmentDesc(MeasurementDesc desc){
+    this.parameters=desc;
+  }
+
   /* Add the measurement results of type String into the class */
   public void addResult(String resultType, Object resultVal) {
     this.values.put(resultType, MeasurementJsonConvertor.toJsonString(resultVal));
@@ -359,13 +378,13 @@ public class MeasurementResult implements Parcelable {
 
       int hops = Integer.parseInt(values.get("num_hops"));
       int hop_str_len = String.valueOf(hops + 1).length();
-      for (int i = 0; i < hops; i++) {
+      for (int i = 1; i <= hops; i++) {
         String key = "hop_" + i + "_addr_1";
         String ipAddress = removeQuotes(values.get(key));
         if (ipAddress == null) {
           ipAddress = "Unknown";
         }
-        String hop_str = String.valueOf(i + 1);
+        String hop_str = String.valueOf(i);
         String hopInfo = hop_str;
         for (int j = 0; j < hop_str_len + 1 - hop_str.length(); ++j) {
           hopInfo += " ";
@@ -382,10 +401,11 @@ public class MeasurementResult implements Parcelable {
         String timeStr = removeQuotes(values.get(key));
         if (timeStr == null) {
           timeStr = "Unknown";
+          printer.println(hopInfo + "-1 ms");
+        }else {
+          float time = Float.parseFloat(timeStr);
+          printer.println(hopInfo + String.format("%6.2f", time) + " ms");
         }
-
-        float time = Float.parseFloat(timeStr);
-        printer.println(hopInfo + String.format("%6.2f", time) + " ms");
       }
     } else if (taskProgress == TaskProgress.PAUSED) {
       printer.println("Traceroute paused!");
@@ -497,9 +517,9 @@ public class MeasurementResult implements Parcelable {
 
   /** Necessary function for Parcelable **/
   private MeasurementResult(Parcel in) {
-    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+//    ClassLoader loader = Thread.currentThread().getContextClassLoader();
     deviceId = in.readString();
-    properties = in.readParcelable(loader);
+    properties = in.readParcelable(DeviceProperty.class.getClassLoader());
     timestamp = in.readLong();
     type = in.readString();
     taskProgress = (TaskProgress) in.readSerializable();
@@ -508,9 +528,24 @@ public class MeasurementResult implements Parcelable {
     } else {
       this.success = false;
     }
-    parameters = in.readParcelable(loader);
-    values = in.readHashMap(loader);
-    contextResults = in.readArrayList(loader);
+    parameters = in.readParcelable(MeasurementDesc.class.getClassLoader());
+//    values = in.readHashMap(loader);
+    int valuesSize = in.readInt();
+    values = new HashMap<String, String>();
+    for (int i = 0; i < valuesSize; i++) {
+      values.put(in.readString(), in.readString());
+    }
+//  contextResults = in.readArrayList(loader);
+    contextResults= new ArrayList<HashMap<String,String>>();
+    int contextResultsSize=in.readInt();
+    for (int i = 0; i < contextResultsSize; i++) {
+      int contextResultsHashMapSize=in.readInt();
+      HashMap<String,String> tempHashMap= new HashMap<String, String>();
+      for (int j = 0; j < contextResultsHashMapSize; j++) {
+        tempHashMap.put(in.readString(), in.readString());
+      }
+      contextResults.add(tempHashMap);
+    }
 
   }
 
@@ -538,8 +573,22 @@ public class MeasurementResult implements Parcelable {
     out.writeString(type);
     out.writeSerializable(taskProgress);
     out.writeParcelable(parameters, flag);
-    out.writeMap(values);
-    out.writeList(contextResults);// TODO (Ashkan): check this
+//    out.writeMap(values);
+    out.writeInt(values.size());
+    for (String s: values.keySet()) {
+      out.writeString(s);
+      out.writeString(values.get(s));
+    }
+//    out.writeList(contextResults);
+    out.writeInt(contextResults.size());
+    for (HashMap<String, String> map: contextResults) {
+      out.writeInt(map.size());
+      for(String s: map.keySet()){
+        out.writeString(s);
+        out.writeString(map.get(s));
+      }
+    }
+
 
   }
 }

@@ -26,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -301,6 +302,23 @@ public final class API {
         throw new MeasurementError("Undefined measurement type. Candidate: " +
             "DNSLOOKUP, HTTP, PING, TRACEROUTE, TCPTHROUGHPUT, UDPBURST");
     }
+
+    // if the task is supposed to be sensitive, ensure that we
+    // have appropriate permissions
+    if (params.containsKey("sensitive")) {
+      SharedPreferences prefs = this.applicationContext.getSharedPreferences(Config.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+      boolean is_sens = Boolean.valueOf(params.get("sensitive"));
+      if (is_sens && !prefs.getBoolean("given_interference_consent", false)){
+        Logger.w("Asked to perfom sensitive measurement when user hasn't given consent");
+        throw new MeasurementError("Asked to perfom sensitive measurement when user hasn't given consent");
+      }
+      // now check if background service is allowed
+      if (!prefs.getBoolean("accept_conditions", false) || !prefs.getBoolean("background_service", false)){
+        Logger.w("Asked to perfom sensitive measurement when user hasn't given consent");
+        throw new MeasurementError("Unable to schedule measurements; user has not consented to background service");
+      }
+    }
+
     return task;
   }
 

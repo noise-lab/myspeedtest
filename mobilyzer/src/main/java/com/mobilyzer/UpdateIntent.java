@@ -14,6 +14,8 @@ public class UpdateIntent extends Intent {
   public static final String TASKID_PAYLOAD = "TASKID_PAYLOAD";
   public static final String CLIENTKEY_PAYLOAD = "CLIENTKEY_PAYLOAD";
   public static final String TASK_PRIORITY_PAYLOAD = "TASK_PRIORITY_PAYLOAD";
+  public static final String TASK_TYPE_PAYLOAD = "TASK_TYPE_PAYLOAD";
+  public static final String TASK_DESC_PAYLOAD = "TASK_DESC_PAYLOAD";
   public static final String RESULT_PAYLOAD = "RESULT_PAYLOAD";
   public static final String MEASUREMENT_TASK_PAYLOAD = "MEASUREMENT_TASK_PAYLOAD";
   public static final String BATTERY_THRESHOLD_PAYLOAD = "BATTERY_THRESHOLD_PAYLOAD";

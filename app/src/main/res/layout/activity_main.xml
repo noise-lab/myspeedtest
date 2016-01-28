@@ -199,7 +199,7 @@
             android:id="@+id/linearlayout3">
 
             <LinearLayout
-                android:id="@+id/main_button_configure"
+                android:id="@+id/main_button_interference"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
@@ -225,7 +225,7 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:gravity="center"
                     android:layout_marginBottom="5dp"
-                    android:text="Configure"
+                    android:text="Interference"
                     android:textColor="#3c3c3c" />
 
             </LinearLayout>
@@ -237,7 +237,7 @@
                 android:background="#cccccc"/>
 
             <LinearLayout
-                android:id="@+id/main_button_about_us"
+                android:id="@+id/main_button_surveys"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
@@ -263,7 +263,7 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:gravity="center"
                     android:layout_marginBottom="5dp"
-                    android:text="About Us"
+                    android:text="Surveys"
                     android:textColor="#3c3c3c" />
 
             </LinearLayout>

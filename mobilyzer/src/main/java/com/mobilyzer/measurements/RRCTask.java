@@ -165,7 +165,7 @@ public class RRCTask extends MeasurementTask {
 
     protected RRCDesc(Parcel in) {
       super(in);
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+//      ClassLoader loader = Thread.currentThread().getContextClassLoader();
       echoHost = in.readString();
       target = in.readString();
       MIN = in.readInt();
@@ -180,7 +180,7 @@ public class RRCTask extends MeasurementTask {
       SIZES = in.readByte() != 0;
       RESULT_VISIBILITY = in.readByte() != 0;
       GIVEUP_THRESHHOLD = in.readInt();
-      Object[] temp = in.readArray(loader);
+      Object[] temp = in.readArray(Integer.class.getClassLoader());
       times = Arrays.copyOf(temp, temp.length, Integer[].class);
     }
 
@@ -993,7 +993,7 @@ public class RRCTask extends MeasurementTask {
     try {
       for (String parameter : sizeParameters) {
         Logger.w("Uploading RRC size data: " + parameter);
-        String response = checkin.serviceRequest("rrc/uploadRRCInferenceSizes", parameter);
+        String response = checkin.serviceRequest("rrc/uploadRRCInferenceSizes", parameter, true);
         Logger.w("Response from GAE: " + response);
       }
     } catch (IOException e) {
@@ -1020,7 +1020,7 @@ public class RRCTask extends MeasurementTask {
     try {
       for (String parameter : parameters) {
         Logger.w("Uploading RRC raw data: " + parameter);
-        String response = checkin.serviceRequest("rrc/uploadRRCInference", parameter);
+        String response = checkin.serviceRequest("rrc/uploadRRCInference", parameter, true);
         Logger.w("Response from GAE: " + response);
 
         Logger.i("TaskSchedule.uploadMeasurementResult() complete");
@@ -1720,7 +1720,7 @@ public class RRCTask extends MeasurementTask {
       waitTime(wait * desc.GRANULARITY, true);
 
       // Send a bunch of large packets, all at once, and take measurements on the result
-      signalStrengthLarge = utils.getCurrentRssi();
+//      signalStrengthLarge = utils.getCurrentRssi();
       long[] retval = sendMultiPackets(serverAddr, desc.MAX, 10, desc.MIN, desc.port);
       packetsLostSmall = (int) retval[1];
       rttLargePacket = retval[0];
@@ -1729,7 +1729,7 @@ public class RRCTask extends MeasurementTask {
       waitTime(wait * desc.GRANULARITY, true);
 
       // Send a bunch of small packets, all at once, and take measurements on the result
-      signalStrengthSmall = utils.getCurrentRssi();
+//      signalStrengthSmall = utils.getCurrentRssi();
       retval = sendMultiPackets(serverAddr, desc.MIN, 10, desc.MIN, desc.port);
       packetsLostLarge = (int) retval[1];
       rttSmallPacket = retval[0];
