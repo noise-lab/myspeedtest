@@ -11,7 +11,7 @@ public class Constants {
     public static final boolean DEBUG = true;
 
     /* Survey constants */
-    public static final String SURVEY_SERVER_ADDRESS = "http://ben.noise.gatech.edu/external/surveys.json";
+    public static final String SURVEY_SERVER_ADDRESS = "http://ruggles.gtnoise.net/surveys";
 
     /* Threads */
     public static final int CORE_POOL_SIZE = 10;

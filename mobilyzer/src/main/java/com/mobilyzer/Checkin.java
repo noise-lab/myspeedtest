@@ -283,7 +283,7 @@ public class Checkin {
         if(item.has("parameters")) {
           JSONObject params = item.getJSONObject("parameters");
           //Logger.d("dns test item has params: " + params.toString());
-          if (params.has("sensitive") && params.get("sensitive") == true) {
+          if (params.has("sensitive") && params.get("sensitive").equals("true")) {
             is_sensitive = true;
           }
         }
