@@ -4,9 +4,23 @@
         android:title="@string/pref_header_general"
         android:key="pref_key_general_settings" >
         <ListPreference
+            android:key="pref_data_plan_type"
+            android:title="Data Plan Type"
+            android:summary="Choose the type of your Data Plan"
+            android:entries="@array/data_plan_type_entries"
+            android:entryValues="@array/data_plan_type_values"
+            android:defaultValue="-1" />
+        <ListPreference
+            android:key="pref_data_plan_promotion"
+            android:title="Data Plan Promotion"
+            android:summary="Choose if you are using internet via a promotion plan"
+            android:entries="@array/data_plan_promotion_entries"
+            android:entryValues="@array/data_plan_promotion_values"
+            android:defaultValue="-1" />
+        <ListPreference
             android:key="pref_data_cap"
-            android:title="Data Cap"
-            android:summary="Choose how much data you get per cycle"
+            android:title="@string/title_activity_data_cap"
+            android:summary="@string/title_activity_data_cap_desc"
             android:entries="@array/data_cap_entries"
             android:entryValues="@array/data_cap_values"
             android:defaultValue="-1" />

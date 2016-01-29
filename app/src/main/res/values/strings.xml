@@ -16,6 +16,12 @@
     <string name="title_activity_about_us">About Us</string>
     <string name="title_activity_terms_and_conditions">Terms and Conditions</string>
     <string name="title_activity_data_cap">Data Cap</string>
+    <string name="title_activity_data_cap_desc">Choose how much data you get per month</string>
+    <string name="title_activity_data_cap_button">Start</string>
+    <string name="title_activity_data_plan">Data Plan</string>
+    <string name="title_activity_data_plan_desc">Choose Data Plan and Promotion</string>
+    <string name="title_activity_data_plan_button">Next</string>
+    <string name="title_activity_data_plan_promotion_edit">Your Internet Promotion Name</string>
 
     <string name="loading">PythonAPK running...</string>
     <string name="title_activity_survey">SurveyActivity</string>

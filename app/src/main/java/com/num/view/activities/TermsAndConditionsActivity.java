@@ -49,7 +49,7 @@ public class TermsAndConditionsActivity extends Activity {
 
                 BootstrapUtil.bootstrap(context);
 
-                Intent myIntent = new Intent(context, DataCapActivity.class);
+                Intent myIntent = new Intent(context, DataPlanActivity.class);
                 startActivity(myIntent);
             }
         });

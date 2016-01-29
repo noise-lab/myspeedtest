@@ -25,6 +25,10 @@
             android:label="@string/title_activity_data_cap"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".view.activities.DataPlanActivity"
+            android:label="@string/title_activity_data_plan"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".view.activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">

@@ -3,7 +3,7 @@
     <string-array name="data_cap_entries">
         <item>Do not have one</item>
         <item>Do not know</item>
-        <item>Prepaid</item>
+        <item>100 MB</item>
         <item>250 MB</item>
         <item>500 MB</item>
         <item>750 MB</item>
@@ -14,7 +14,7 @@
     <string-array name="data_cap_values">
         <item>-1</item>
         <item>0</item>
-        <item>-2</item>
+        <item>100</item>
         <item>250</item>
         <item>500</item>
         <item>750</item>
@@ -22,6 +22,41 @@
         <item>2000</item>
         <item>9999</item>
     </string-array>
+    <string-array name="data_plan_type_entries">
+        <item>Pre paid</item>
+        <item>Post paid</item>
+    </string-array>
+    <string-array name="data_plan_type_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="data_plan_promotion_entries">
+        <item>None</item>
+        <item>Do not know</item>
+        <item>Free-Basics</item>
+        <item>Facebook Zero</item>
+        <item>Wikipedia Zero</item>
+        <item>Free Twitter</item>
+        <item>Social Media Bundle</item>
+        <item>Free Internet with Opera Mini</item>
+        <item>Time based Bundle</item>
+        <item>Data bonus</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="data_plan_promotion_values">
+        <item>0</item>
+        <item>-1</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+
 
     <string-array name="frequency_entries">
         <item>Once a day</item>
