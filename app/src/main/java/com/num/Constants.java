@@ -8,7 +8,7 @@ public class Constants {
     public static final String API_SERVER_ADDRESS = "http://ruggles.gtnoise.net/";
     public static final String DATA_DIRECTORY = "/data/data/com.num";
     public static final String LOG_TAG = "My Speed Test";
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     /* Survey constants */
     public static final String SURVEY_SERVER_ADDRESS = "http://ruggles.gtnoise.net/surveys";

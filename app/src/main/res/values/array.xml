@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="data_cap_entries">
-        <item>Do not have one</item>
+        <item>Do not have a data cap</item>
         <item>Do not know</item>
         <item>100 MB</item>
         <item>250 MB</item>
@@ -39,7 +39,7 @@
         <item>Free Twitter</item>
         <item>Social Media Bundle</item>
         <item>Free Internet with Opera Mini</item>
-        <item>Time based Bundle</item>
+        <item>Time based internet plan</item>
         <item>Data bonus</item>
         <item>Other</item>
     </string-array>

@@ -13,14 +13,16 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.text.InputType;
+
+import com.num.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 //import com.mobilyzer.Config;
 //import com.mobilyzer.MeasurementScheduler;
 //import com.mobilyzer.api.API;
 //import com.mobilyzer.exceptions.MeasurementError;
-import com.mobilyzer.util.Logger;
-import com.num.R;
 //import com.num.controller.utils.Logger;
 
 public class DataPlanActivity extends Activity {
@@ -48,18 +50,23 @@ public class DataPlanActivity extends Activity {
         radioGroup_values2 = getResources().getStringArray(R.array.data_plan_promotion_values);
         other = (EditText) findViewById(R.id.data_plan_promotion_edit);
 
-
         LinearLayout.LayoutParams rg = new RadioGroup.LayoutParams(
                 RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
 
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        int dataplan_type = Integer.parseInt(prefs.getString("pref_data_plan_type", "-3"));
         for(int i=0; i<radioGroup_text1.length; i++){
             RadioButton radiobutton = new RadioButton(this);
             radiobutton.setText(radioGroup_text1[i]);
             radiobutton.setId(i);
             radiobutton.setTextColor(Color.BLACK);
+            if ( dataplan_type > -3 && dataplan_type == Integer.parseInt(radioGroup_values1[i]) )
+                radiobutton.setChecked(true);
             radioGroup1.addView(radiobutton, rg);
         }
 
+        int dataplan_promo = Integer.parseInt(prefs.getString("pref_data_plan_promo", "-3"));
         for(int i=0; i<radioGroup_text2.length; i++){
             RadioButton radiobutton = new RadioButton(this);
             radiobutton.setText(radioGroup_text2[i]);
@@ -68,13 +75,16 @@ public class DataPlanActivity extends Activity {
                 radiobutton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        other.setVisibility((b)?View.VISIBLE:View.INVISIBLE);
                         other.setEnabled(b);
                         other.setFocusable(b);
                         other.setFocusableInTouchMode(b);
-                        //if(b) other.requestFocus();
+                        other.setText(prefs.getString("pref_data_plan_other", ""));
                     }
                 });
             radiobutton.setTextColor(Color.BLACK);
+            if ( dataplan_promo > -3 && dataplan_promo == Integer.parseInt(radioGroup_values2[i]) )
+                radiobutton.setChecked(true);
             radioGroup2.addView(radiobutton, rg);
         }
 
@@ -83,16 +93,22 @@ public class DataPlanActivity extends Activity {
             @Override
             public void onClick(View view) {
 
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+
                 int index1 = radioGroup1.getCheckedRadioButtonId();
                 if(index1<0) return;
 
                 int index2 = radioGroup2.getCheckedRadioButtonId();
-                if(index1<0) return;
+                if(index2<0) return;
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor e = prefs.edit();
                 e.putString("pref_data_plan_type", radioGroup_values1[index1]);
                 e.putString("pref_data_plan_promo", radioGroup_values2[index2]);
+                e.putString("pref_data_plan_other", other.getText().toString());
+                e.putString("pref_data_plan_lastupd", df.format(c.getTime()));
                 e.commit();
                 finish();
 

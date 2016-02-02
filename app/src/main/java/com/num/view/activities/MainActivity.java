@@ -8,20 +8,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.telephony.PhoneStateListener;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
-import android.view.View;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.num.Constants;
 import com.num.R;
 import com.num.controller.utils.DeviceUtil;
-import com.num.controller.utils.TracerouteUtil;
-import com.num.model.Signal;
 
 
 public class MainActivity extends ActionBarActivity {
