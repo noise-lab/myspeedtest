@@ -36,6 +36,8 @@ public class Constants {
     /* Background Measurement Service */
     public static final int UPDATE_INTERVAL = 1000 * 60 * 15; // 15 minutes
     public static final int DAILY_INTERVAL = 1000 * 60 * 60 * 24; // used only for switch id
+    public static final int EXPIRE_INTERVAL = 1000 * 60 * 60 * 24 * 30 * 4; //4 months
+    //public static final int EXPIRE_INTERVAL = 1000 * 60 * 2; //2 minutes (for testing)
     public static final int NORMAL_SLEEP_TIME = 1000;
     public static final int SHORT_SLEEP_TIME = 100;
     public static final int ONE_MINUTE_TIME = 60 * 1000;

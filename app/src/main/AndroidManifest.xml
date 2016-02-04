@@ -30,6 +30,7 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.num.view.activities.DataPlanActivity.LAUNCH" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -39,6 +40,7 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -123,7 +125,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.num.view.activities.SurveyActivity" />
         </activity>
-        <activity android:name=".view.activities.InterferenceConsentActivity"></activity>
+        <activity android:name=".view.activities.InterferenceConsentActivity" />
+        <activity android:name=".view.activities.DataPlanUpdateActivity"></activity>
     </application>
 
 </manifest>

@@ -94,8 +94,7 @@ public class DataPlanActivity extends Activity {
             public void onClick(View view) {
 
                 Calendar c = Calendar.getInstance();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                 int index1 = radioGroup1.getCheckedRadioButtonId();
                 if(index1<0) return;

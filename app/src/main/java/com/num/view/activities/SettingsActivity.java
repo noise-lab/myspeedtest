@@ -46,12 +46,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 Logger.e("Error setting data usage profile");
             }
         }
-
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor e = prefs.edit();
-        e.putString("pref_data_plan_lastupd", df.format(c.getTime()));
+        Calendar actual = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SharedPreferences.Editor e = sharedPreferences.edit();
+        e.putString("pref_data_plan_lastupd", df.format(actual.getTime()));
         e.commit();
         finish();
     }
