@@ -7,21 +7,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.telephony.PhoneStateListener;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
-import android.view.View;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.num.Constants;
 import com.num.R;
 import com.num.controller.utils.DeviceUtil;
-import com.num.controller.utils.TracerouteUtil;
-import com.num.model.Signal;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -99,6 +100,8 @@ public class MainActivity extends ActionBarActivity {
                         }
                     }).setIcon(android.R.drawable.ic_dialog_alert).show();
         }
+
+
     }
 
     @Override
@@ -134,6 +137,28 @@ public class MainActivity extends ActionBarActivity {
             finish();
             Intent myIntent = new Intent(getApplicationContext(), TermsAndConditionsActivity.class);
             startActivity(myIntent);
+            return;
+        }
+
+        Calendar actual = Calendar.getInstance();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String lastUpd = prefs.getString("pref_data_plan_lastupd", "empty"); //this will force exception
+        Calendar last=Calendar.getInstance();
+        try {
+            last.setTime((new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(lastUpd)));
+        }
+        catch (ParseException e){
+            Intent settings = new Intent(activity, DataPlanUpdateActivity.class);
+            startActivity(settings);
+            finish();
+            return;
+        }
+        if( actual.getTimeInMillis() > (last.getTimeInMillis()+Constants.EXPIRE_INTERVAL) )
+        {
+            Intent settings = new Intent(activity, DataPlanUpdateActivity.class);
+            startActivity(settings);
+            finish();
+            return;
         }
     }
 }

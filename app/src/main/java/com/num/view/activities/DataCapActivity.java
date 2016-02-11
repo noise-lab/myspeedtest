@@ -39,11 +39,16 @@ public class DataCapActivity extends Activity {
         LinearLayout.LayoutParams rg = new RadioGroup.LayoutParams(
                 RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
 
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        int dataplan_cap = Integer.parseInt(prefs.getString("pref_data_cap", "-3"));
         for(int i=0; i<radioGroup_text.length; i++){
             RadioButton radiobutton = new RadioButton(this);
             radiobutton.setText(radioGroup_text[i]);
             radiobutton.setId(i);
             radiobutton.setTextColor(Color.BLACK);
+            if ( dataplan_cap > -3 && dataplan_cap == Integer.parseInt(radioGroup_values[i]) )
+                radiobutton.setChecked(true);
             radioGroup.addView(radiobutton, rg);
         }
 
@@ -52,24 +57,32 @@ public class DataCapActivity extends Activity {
             public void onClick(View view) {
 
                 int index = radioGroup.getCheckedRadioButtonId();
-                if(index<0) return;
-
+                //if(index<0) return; //isn't 0 valid ?
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor e = prefs.edit();
+                int datacap = Integer.parseInt(radioGroup_values[index]);
                 e.putString("pref_data_cap", radioGroup_values[index]);
                 e.commit();
                 finish();
 
                 try {
                     API api = API.getAPI(DataCapActivity.this, Config.CHECKIN_KEY);
-                    if (index == 0) {
+                    /*if (index == 0) {
                         api.setDataUsage(MeasurementScheduler.DataUsageProfile.UNLIMITED);
                     } else if (index == 1 || index == 7 || index == 8) {//DEFAULT PROFILE, ~250MB
                         api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE3);
                     } else if (index >= 2 && index <= 5) {//~50MB
                         api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE1);
                     } else if (index == 6) {//~100MB
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE2);
+                    }*/
+                    //TODO remove replicated code in SettingsActivity
+                    if (datacap >= 2000 && datacap < 0) {
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE3); //DEFAULT PROFILE, ~250MB
+                    } else if (datacap >= 0 && datacap < 250) {//~50MB
+                        api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE1);
+                    } else {//~100MB
                         api.setDataUsage(MeasurementScheduler.DataUsageProfile.PROFILE2);
                     }
                 }catch (MeasurementError measurementError){

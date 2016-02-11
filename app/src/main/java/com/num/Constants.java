@@ -8,7 +8,7 @@ public class Constants {
     public static final String API_SERVER_ADDRESS = "http://ruggles.gtnoise.net/";
     public static final String DATA_DIRECTORY = "/data/data/com.num";
     public static final String LOG_TAG = "My Speed Test";
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     /* Survey constants */
     public static final String SURVEY_SERVER_ADDRESS = "http://ruggles.gtnoise.net/surveys";
@@ -36,6 +36,8 @@ public class Constants {
     /* Background Measurement Service */
     public static final int UPDATE_INTERVAL = 1000 * 60 * 15; // 15 minutes
     public static final int DAILY_INTERVAL = 1000 * 60 * 60 * 24; // used only for switch id
+    public static final int EXPIRE_INTERVAL = 1000 * 60 * 60 * 24 * 30 * 4; //4 months
+    //public static final int EXPIRE_INTERVAL = 1000 * 60 * 2; //2 minutes (for testing)
     public static final int NORMAL_SLEEP_TIME = 1000;
     public static final int SHORT_SLEEP_TIME = 100;
     public static final int ONE_MINUTE_TIME = 60 * 1000;

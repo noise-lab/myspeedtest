@@ -3,13 +3,9 @@
     <PreferenceCategory
         android:title="@string/pref_header_general"
         android:key="pref_key_general_settings" >
-        <ListPreference
-            android:key="pref_data_cap"
-            android:title="Data Cap"
-            android:summary="Choose how much data you get per cycle"
-            android:entries="@array/data_cap_entries"
-            android:entryValues="@array/data_cap_values"
-            android:defaultValue="-1" />
+        <PreferenceScreen android:key="pref_data_plan_cap" android:title="@string/title_activity_data_plan_cap" android:summary="@string/title_activity_data_plan_cap_desc">
+            <intent android:action="com.num.view.activities.DataPlanActivity.LAUNCH" android:targetClass=".view.activities.DataPlanActivity" />
+        </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/pref_header_measurement"

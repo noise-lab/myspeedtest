@@ -2,15 +2,15 @@
 
 package com.mobilyzer.util;
 
-import com.mobilyzer.Config;
-
 import android.util.Log;
+
+import com.mobilyzer.Config;
 
 /**
  * Wrapper for logging operations which can be disabled by setting LOGGING_ENABLED.
  */
 public class Logger {
-  private final static boolean LOGGING_ENABLED = true;
+  private final static boolean LOGGING_ENABLED = false;
   private final static String TAG = "Mobilyzer-" + Config.version;
   
   public static void d(String msg) {

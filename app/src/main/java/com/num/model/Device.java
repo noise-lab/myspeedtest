@@ -4,23 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 
 import com.num.controller.utils.HashUtil;
-import com.num.controller.utils.Logger;
 
 import org.json.JSONObject;
 
 public class Device implements BaseModel {
     private String phoneType, phoneNumber, softwareVersion, androidVersion, phoneBrand,
             manufacturer, productName, radioVersion, boardName, deviceDesign, phoneModel,
-            networkCountry, networkName, emailAddress;
-    private int dataCap, applicationVersion;
+            networkCountry, networkName, emailAddress, dataPlanPromoName, dataPlanLastUpd;
+    private int dataCap, dataPlanType, dataPlanPromo, applicationVersion;
 
     public Device(Context context) {
         TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -93,7 +88,20 @@ public class Device implements BaseModel {
         emailAddress = prefs.getString("pref_email", "");
 
         String dCap = prefs.getString("pref_data_cap", "-1");
+
         dataCap = Integer.parseInt(dCap);
+
+        String dPlan = prefs.getString("pref_data_plan_type", "-1");
+
+        dataPlanType = Integer.parseInt(dPlan);
+
+        String dPromo = prefs.getString("pref_data_plan_promo", "-1");
+
+        dataPlanPromo = Integer.parseInt(dPromo);
+
+        dataPlanPromoName = prefs.getString("pref_data_plan_other", "");
+
+        dataPlanLastUpd = prefs.getString("pref_data_plan_lastupd", "");
     }
 
     @Override
@@ -115,6 +123,10 @@ public class Device implements BaseModel {
             json.putOpt("networkName", networkName);
             json.putOpt("applicationVersion", applicationVersion);
             json.putOpt("datacap", dataCap);
+            json.putOpt("dataPlanType", dataPlanType);
+            json.putOpt("dataPlanPromo", dataPlanPromo);
+            json.putOpt("dataPlanPromoName", dataPlanPromoName);
+            json.putOpt("dataPlanLastUpd", dataPlanLastUpd);
             json.putOpt("emailAddress", emailAddress);
         }
         catch (Exception e) {
