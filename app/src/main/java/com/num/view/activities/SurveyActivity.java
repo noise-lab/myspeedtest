@@ -5,39 +5,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.num.Constants;
 import com.num.R;
+import com.num.controller.utils.DownloadJSONListener;
+import com.num.controller.utils.RemoteJSONUtil;
 import com.num.model.Survey;
 import com.num.view.adapters.SurveyListAdapter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-import java.util.ArrayList;
-import android.util.Log;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.HttpURLConnection;
-import android.os.StrictMode;
-import android.widget.ProgressBar;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class SurveyActivity extends Activity implements AdapterView.OnItemClickListener {
+public class SurveyActivity extends Activity implements AdapterView.OnItemClickListener, DownloadJSONListener {
     private ListView listView;
 
     private ListAdapter adapter;
@@ -70,14 +65,20 @@ public class SurveyActivity extends Activity implements AdapterView.OnItemClickL
         startActivity(intent);
     }
 
+    public void onJSONReceived(String jsonContent){
+        loadSurveys(jsonContent);
+    }
+
     // Uses AsyncTask to create a task away from the main UI thread. This task takes a
     // URL string and uses it to create an HttpUrlConnection. Once the connection
     // has been established, the AsyncTask downloads the contents of the webpage as
     // an InputStream. Finally, the InputStream is converted into a string, which is
     // displayed in the UI by the AsyncTask's onPostExecute method.
-    private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+    /*private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
         public boolean downloadComplete;
         public String result;
+
+
 
         @Override
         protected String doInBackground(String... urls) {
@@ -97,9 +98,9 @@ public class SurveyActivity extends Activity implements AdapterView.OnItemClickL
             this.result = result;
             loadSurveys(result);
         }
-    }
+    } */
 
-
+    /*
     // Reads an InputStream and converts it to a String.
     public String readIt(InputStream stream, int len) throws IOException {
         Reader reader;
@@ -115,9 +116,9 @@ public class SurveyActivity extends Activity implements AdapterView.OnItemClickL
     private String downloadUrl(String myurl) throws IOException {
 
 
-        /*StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);*/
+        //StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+        //        .permitAll().build();
+        //StrictMode.setThreadPolicy(policy);
 
         InputStream is = null;
         // Only display the first 50000 characters of the retrieved
@@ -127,8 +128,8 @@ public class SurveyActivity extends Activity implements AdapterView.OnItemClickL
         try {
             URL url = new URL(myurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setReadTimeout(10000 );
+            conn.setConnectTimeout(15000 );
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             // Starts the query
@@ -147,12 +148,10 @@ public class SurveyActivity extends Activity implements AdapterView.OnItemClickL
                 is.close();
             }
         }
-    }
+    } */
 
     // download the JSON with survey info and construct data structures for each survey
     private void getSurveys() {
-        //String jsonString = "[{\"link\": \"www.google.com\", \"title\": \"survey1\", \"desc\": \"this is a short description\"}, {\"link\": \"www.yahoo.com\", \"title\": \"yahoo survey\", \"desc\": \"this is also a short description of yahoo.com survey\"}]";
-        //String jsonString = "";
         try {
 
             // When user clicks button, calls AsyncTask.
@@ -160,17 +159,17 @@ public class SurveyActivity extends Activity implements AdapterView.OnItemClickL
             ConnectivityManager connMgr = (ConnectivityManager)
                     getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isConnected()) {
-                new DownloadWebpageTask().execute(Constants.SURVEY_SERVER_ADDRESS);
-                //jsonString = downloadUrl(Constants.SURVEY_SERVER_ADDRESS);
-            } else {
+
+            if (!RemoteJSONUtil.setJSONtoDownload(this, Constants.SURVEY_SERVER_ADDRESS,
+                    ((ConnectivityManager) getApplicationContext().
+                            getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo())) {
                 throw (new IOException("No network connection available"));
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        //loadSurveys(jsonString);
     }
+
     private void loadSurveys(String jsonString){
         try {
             JSONArray values = new JSONArray(jsonString);
