@@ -1,6 +1,7 @@
 package com.num.view.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import com.mobilyzer.MeasurementScheduler;
 import com.mobilyzer.api.API;
 import com.mobilyzer.exceptions.MeasurementError;
 import com.mobilyzer.util.Logger;
+import com.num.Constants;
 import com.num.R;
 
 public class DataCapActivity extends Activity {
@@ -57,14 +59,22 @@ public class DataCapActivity extends Activity {
             public void onClick(View view) {
 
                 int index = radioGroup.getCheckedRadioButtonId();
+                String survey_required=null;
                 //if(index<0) return; //isn't 0 valid ?
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                SharedPreferences.Editor e = prefs.edit();
+                SharedPreferences sharedpreferences =
+                        getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+                survey_required=sharedpreferences.getString("survey_required", null);
+
+                SharedPreferences.Editor e_def = prefs.edit();
                 int datacap = Integer.parseInt(radioGroup_values[index]);
-                e.putString("pref_data_cap", radioGroup_values[index]);
-                e.commit();
-                finish();
+                e_def.putString("pref_data_cap", radioGroup_values[index]);
+                e_def.commit();
+
+                SharedPreferences.Editor e_app=sharedpreferences.edit();
+                e_app.remove(survey_required);
+                e_app.commit();
 
                 try {
                     API api = API.getAPI(DataCapActivity.this, Config.CHECKIN_KEY);
@@ -87,6 +97,19 @@ public class DataCapActivity extends Activity {
                     }
                 }catch (MeasurementError measurementError){
                     Logger.e("Error setting data usage profile");
+                }
+
+                finish();
+                //System.out.println("survey_required is " + survey_required);
+                if (survey_required != null)
+                {
+                    Logger.d("Survey is required for this country.");
+                    Intent intent = new Intent();
+                    intent.setClass(getApplicationContext(), DisplaySurvey.class);
+                    intent.putExtra(SurveyActivity.SURVEY_LINK, survey_required);
+                    startActivity(intent);
+
+                    return;
                 }
 
                 Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
