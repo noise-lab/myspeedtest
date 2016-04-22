@@ -108,6 +108,11 @@
         </receiver>
         <receiver android:name=".controller.receivers.MeasurementAlarmReceiver" />
         <receiver android:name=".controller.receivers.MonthlyResetAlarmReceiver" />
+        <receiver
+            android:name=".controller.receivers.InstallReferrerReceiver"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
 
         <activity
             android:name=".view.activities.SurveyActivity"
