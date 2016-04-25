@@ -1,5 +1,7 @@
 package com.num.controller.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
@@ -8,7 +10,6 @@ import com.num.Constants;
 import com.num.model.Address;
 import com.num.model.Measurement;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -17,13 +18,14 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ServerUtil {
 
@@ -42,6 +44,7 @@ public class ServerUtil {
             pingTargets.add(new Address("www.wikipedia.com", "Wikipedia"));
             pingTargets.add(new Address("143.215.131.173", "Atlanta, GA"));
             pingTargets.add(new Address("www.yahoo.com", "Yahoo!"));
+            pingTargets.add(new Address("www.whatsapp.com", "WhatsApp"));
         }
         return pingTargets;
     }
@@ -110,6 +113,7 @@ public class ServerUtil {
                 pingTargets.add(new Address("www.wikipedia.com", "Wikipedia"));
                 pingTargets.add(new Address("143.215.131.173", "Atlanta, GA"));
                 pingTargets.add(new Address("www.yahoo.com", "Yahoo!"));
+                pingTargets.add(new Address("www.whatsapp.com", "WhatsApp"));
             }
             return pingTargets;
         }
@@ -151,10 +155,75 @@ public class ServerUtil {
                     dnsTargets.add(new Pair<String, String>(target, server));
                 }
             } catch (Exception e) {
-                Log.d("ServerDnsTask",  "Exception doInBackground");
+                Log.d("ServerDnsTask", "Exception doInBackground");
                 e.printStackTrace();
             }
             return dnsTargets;
+        }
+    }
+
+    public static void sendUrlPostBack(Context context) {
+        AsyncUrlPostBack apburl = new AsyncUrlPostBack();
+        apburl.setContext(context);
+        apburl.execute("referrer_id");
+    }
+    private static class AsyncUrlPostBack extends AsyncTask<String, Integer, Double> {
+
+        private final static String TAG = "AsyncUrlPostBack";
+        private Context context = null;
+
+
+        private void setContext(Context context)
+        {
+            this.context = context;
+        }
+
+        @Override
+        protected Double doInBackground(String... params) {
+
+            URL postbackurl;
+            SharedPreferences.Editor e_def = null;
+            if( context == null ) {
+                Log.d(TAG, "Context not set");
+                return null;
+            }
+            SharedPreferences p_def = context.getSharedPreferences(
+                    Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+            String referrer_id = p_def.getString(params[0], "novalue");
+            e_def=p_def.edit();
+
+            try {
+                postbackurl = new URL(Constants.CANPAIGN_POSTBACK_URL + referrer_id);
+            }
+            catch(MalformedURLException mue)
+            {
+                Log.d(TAG, "failed to decode post url: "+mue.getMessage());
+                return null;
+            }
+            try {
+
+                HttpURLConnection connection = (HttpURLConnection) postbackurl.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                //DataOutputStream outstream = new DataOutputStream(connection.getOutputStream());
+                //outstream.writeBytes(referrer_id);
+                //outstream.flush();
+                //outstream.close();
+                int responseCode = connection.getResponseCode();
+                if ( responseCode == 200 && context != null) {
+                    e_def.remove(params[0]);
+                    e_def.commit();
+                    Log.d(TAG, "POSTED to " + Constants.CANPAIGN_POSTBACK_URL + referrer_id);
+                }
+                else {
+                    Log.d(TAG, "Failed to POST to " + Constants.CANPAIGN_POSTBACK_URL + referrer_id);
+                }
+            }
+            catch (IOException ioe)
+            {
+                Log.d(TAG, "" + ioe.getMessage());
+            }
+            return null;
         }
     }
 

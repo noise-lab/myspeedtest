@@ -6,6 +6,7 @@ public class Constants {
 
     public static final String SHARED_PREFERENCES_NAME = "com.num";
     public static final String API_SERVER_ADDRESS = "http://ruggles.gtnoise.net/";
+    public static final String CANPAIGN_POSTBACK_URL = "https://s.on-device.com/s/i0vc9?ts=";
     public static final String DATA_DIRECTORY = "/data/data/com.num";
     public static final String LOG_TAG = "My Speed Test";
     public static final boolean DEBUG = false;

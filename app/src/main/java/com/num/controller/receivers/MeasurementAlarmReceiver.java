@@ -6,16 +6,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
-import android.net.Uri;
 
 import com.num.Constants;
 import com.num.controller.managers.DataUsageManager;
-import com.num.controller.managers.DnsManager;
 import com.num.controller.managers.MeasurementManager;
-import com.num.controller.utils.DataUsageUtil;
+import com.num.controller.utils.ServerUtil;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -27,6 +26,7 @@ public class MeasurementAlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        SharedPreferences prefs = context.getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         try {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
@@ -35,12 +35,15 @@ public class MeasurementAlarmReceiver extends BroadcastReceiver {
             DataUsageManager dataUsageManager = new DataUsageManager(new Handler());
             dataUsageManager.execute(context);
 
+            if(prefs.contains("referrer_id"))
+            {
+                ServerUtil.sendUrlPostBack(context);
+            }
             // run only when background_service is set to run (true)
             switch(intent.getIntExtra("repeating", 0))
             {
                 case Constants.UPDATE_INTERVAL:
                     Log.d(TAG, "Background Interval Update");
-                    SharedPreferences prefs = context.getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
                     if (prefs.getBoolean("accept_conditions", false) && prefs.getBoolean("background_service", false)) {
                         MeasurementManager manager = new MeasurementManager(context);
                         manager.execute();
